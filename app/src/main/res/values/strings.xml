@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">SteamFamilyGroupFinder</string>
+
+    <string name="toastPlsEmail">Please enter email.</string>
+    <string name="toastPlsPassword">Please enter password.</string>
+    <string name="toastOkLogin">Login successful.</string>
+    <string name="toastKoLogin">Authentication failed.</string>
+    <string name="toastOkAccount">Account created. You may now log in.</string>
+    <string name="toastKoAccount">Register failed.</string>
+
+    <string name="etPreparing">Preparing to run…</string>
+
+    <string name="etUsername">Username</string>
+    <string name="etEmail">Email</string>
+    <string name="etPassword">Password</string>
+    <string name="cbRemember">Remember login info</string>
+    <string name="btnLogin">LOGIN</string>
+    <string name="btnRegister">REGISTER</string>
+    <string name="tvClickToLogin">Click here to login</string>
+    <string name="tvClickToRegister">Click here to register</string>
+</resources>

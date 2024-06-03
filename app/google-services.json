@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "6839057618",
+    "project_id": "steamfamilygroupfinder",
+    "storage_bucket": "steamfamilygroupfinder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6839057618:android:1aef1c849ed277c80d410b",
+        "android_client_info": {
+          "package_name": "com.mi.steamfamilygroupfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjiiuDRsyOQwCPHCx7cBjRlw3u5HrMFTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
