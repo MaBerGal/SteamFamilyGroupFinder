@@ -13,7 +13,7 @@
         android:fontFamily="monospace"
         android:text="@string/btnRegister"
         android:textSize="48sp"
-        app:layout_constraintBottom_toTopOf="@+id/edEmail"
+        app:layout_constraintBottom_toTopOf="@+id/edEmail4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,11 +23,23 @@
         android:id="@+id/edEmail"
         android:layout_width="353dp"
         android:layout_height="48dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="16dp"
         android:ems="10"
         android:hint="@string/etEmail"
         android:inputType="text"
         app:layout_constraintBottom_toTopOf="@+id/edPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/edEmail4"
+        android:layout_width="353dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:ems="10"
+        android:hint="@string/etUsername"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/edEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

@@ -3,22 +3,31 @@ package com.mi.steamfamilygroupfinder;
 import java.util.List;
 
 public class UserProfile {
-    public String username;
-    public String email;
-    public List<String> gamesOwned;
-    public List<String> gamesInterested;
+    private String uid; // Add this line
+    private String username;
+    private String email;
+    private List<String> gamesOwned;
+    private List<String> gamesInterested;
 
     public UserProfile() {
     }
 
-    public UserProfile(String email, List<String> gamesOwned, List<String> gamesInterested) {
+    public UserProfile(String uid, String email, List<String> gamesOwned, List<String> gamesInterested) {
+        this.uid = uid;
         this.email = email;
         this.gamesOwned = gamesOwned;
         this.gamesInterested = gamesInterested;
     }
 
     // Getter and setter methods
-    // Important for retrieving the user's profile data from activities
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
     public void setGamesOwned(List<String> gamesOwned) {
         this.gamesOwned = gamesOwned;
@@ -27,7 +36,6 @@ public class UserProfile {
     public List<String> getGamesOwned() {
         return this.gamesOwned;
     }
-
 
     public void setGamesInterested(List<String> gamesInterested) {
         this.gamesInterested = gamesInterested;
@@ -53,4 +61,3 @@ public class UserProfile {
         return this.username;
     }
 }
-
