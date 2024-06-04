@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bottom_menu_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/fragmentProfile" />
+    <item
+        android:id="@+id/bottom_menu_groups"
+        android:icon="@drawable/ic_groups"
+        android:title="@string/fragmentGroups" />
+    <item
+        android:id="@+id/bottom_menu_inbox"
+        android:icon="@drawable/ic_inbox"
+        android:title="@string/fragmentInbox" />
+</menu>

@@ -19,4 +19,18 @@
     <string name="btnRegister">REGISTER</string>
     <string name="tvClickToLogin">Click here to login</string>
     <string name="tvClickToRegister">Click here to register</string>
+
+    <string name="fragmentProfile">Profile</string>
+    <string name="fragmentGroups">Groups</string>
+    <string name="fragmentInbox">Inbox</string>
+
+    <string name="menuAbout">About</string>
+    <string name="menuLogout">Logout</string>
+
+    <string name="tvWelcome">Welcome %1$s!</string>
+    <string name="tvGroupStatusOk">You belong to a group!</string>
+    <string name="tvGroupStatusKo">You don\'t belong to any group yet! Would you like to create one or join one?</string>
+
+
+    <string name="hello_blank_fragment">xd</string>
 </resources>
