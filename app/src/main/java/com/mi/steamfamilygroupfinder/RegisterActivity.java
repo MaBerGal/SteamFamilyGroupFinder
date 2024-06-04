@@ -14,22 +14,25 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    EditText registerEmail, registerPassword;
+    EditText registerEmail, registerPassword, registerUsername;
     Button registerButton;
     TextView goLogin;
     ProgressBar progressBar;
     FirebaseAuth mAuth;
+    DatabaseReference databaseReference;
 
     @Override
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -43,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         registerEmail = findViewById(R.id.edEmail);
         registerPassword = findViewById(R.id.edPassword);
+        registerUsername = findViewById(R.id.edUsername);
         registerButton = findViewById(R.id.btnRegister);
         progressBar = findViewById(R.id.progressBar);
         goLogin = findViewById(R.id.tvRegister);
@@ -53,44 +57,57 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         mAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users");
 
         registerButton.setOnClickListener(v -> {
             progressBar.setVisibility(View.VISIBLE);
             String email = registerEmail.getText().toString();
             String password = registerPassword.getText().toString();
+            String username = registerUsername.getText().toString();
 
             if (TextUtils.isEmpty(email)) {
                 Toast.makeText(this, R.string.toastPlsEmail, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (TextUtils.isEmpty(password)) {
+                progressBar.setVisibility(View.GONE);
+            } else if (TextUtils.isEmpty(password)) {
                 Toast.makeText(this, R.string.toastPlsPassword, Toast.LENGTH_SHORT).show();
-                return;
-            }
+                progressBar.setVisibility(View.GONE);
+            } else if (TextUtils.isEmpty(username)) {
+                Toast.makeText(this, R.string.toastPlsUsername, Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+            } else {
 
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
                             progressBar.setVisibility(View.GONE);
-                            Toast.makeText(RegisterActivity.this, R.string.toastOkAccount,
-                                    Toast.LENGTH_SHORT).show();
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            String uid = firebaseUser.getUid();
                             UserProfile user = new UserProfile();
+                            user.setUid(uid);
                             user.setEmail(email);
-                            String trimmedEmail = email.substring(0, email.indexOf('@'));
-                            user.setUsername(trimmedEmail);
+                            user.setUsername(username);
                             user.setGamesOwned(new ArrayList<>());
                             user.setGamesInterested(new ArrayList<>());
-                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+
+                            databaseReference.child(uid).setValue(user)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(RegisterActivity.this, R.string.toastOkAccount,
+                                                Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(RegisterActivity.this, R.string.toastKoAccount,
+                                                Toast.LENGTH_SHORT).show();
+                                    });
                         } else {
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(RegisterActivity.this, R.string.toastKoAccount,
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
+            }
         });
-
     }
 }

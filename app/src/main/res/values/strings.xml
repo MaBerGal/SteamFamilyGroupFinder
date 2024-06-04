@@ -3,6 +3,7 @@
 
     <string name="toastPlsEmail">Please enter email.</string>
     <string name="toastPlsPassword">Please enter password.</string>
+    <string name="toastPlsUsername">Please enter username.</string>
     <string name="toastOkLogin">Login successful.</string>
     <string name="toastKoLogin">Authentication failed.</string>
     <string name="toastOkAccount">Account created. You may now log in.</string>
