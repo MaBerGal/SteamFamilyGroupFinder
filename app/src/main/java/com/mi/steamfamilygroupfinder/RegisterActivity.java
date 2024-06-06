@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -91,20 +92,43 @@ public class RegisterActivity extends AppCompatActivity {
 
                             databaseReference.child(uid).setValue(user)
                                     .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(RegisterActivity.this, R.string.toastOkAccount,
+                                        Toast.makeText(RegisterActivity.this, R.string.toastOkRegister,
                                                 Toast.LENGTH_SHORT).show();
                                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                                         startActivity(intent);
                                         finish();
                                     })
                                     .addOnFailureListener(e -> {
-                                        Toast.makeText(RegisterActivity.this, R.string.toastKoAccount,
+                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterDatabase,
                                                 Toast.LENGTH_SHORT).show();
                                     });
                         } else {
                             progressBar.setVisibility(View.GONE);
-                            Toast.makeText(RegisterActivity.this, R.string.toastKoAccount,
-                                    Toast.LENGTH_SHORT).show();
+                            // User creation failed
+                            if (task.getException() != null) {
+                                String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
+                                switch (errorCode) {
+                                    case "ERROR_INVALID_EMAIL":
+                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterInvalidEmail,
+                                                Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case "ERROR_WEAK_PASSWORD":
+                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterWeakPassword,
+                                                Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case "ERROR_EMAIL_ALREADY_IN_USE":
+                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterEmailInUse,
+                                                Toast.LENGTH_SHORT).show();
+                                        break;
+                                    default:
+                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegister,
+                                                Toast.LENGTH_SHORT).show();
+                                        break;
+                                }
+                            } else {
+                                Toast.makeText(RegisterActivity.this, R.string.toastKoRegister,
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
             }

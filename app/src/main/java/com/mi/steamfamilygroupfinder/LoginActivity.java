@@ -16,15 +16,22 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText loginEmail, loginPassword;
+    EditText loginUsername, loginEmail, loginPassword;
+    String inputUsername, inputEmail, inputPassword;
     Button loginButton;
     CheckBox cbRemember;
     TextView goRegister;
     ProgressBar progressBar;
     FirebaseAuth mAuth;
+    DatabaseReference databaseReference;
     SharedPreferences sharedPreferences;
 
     @Override
@@ -43,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        loginUsername = findViewById(R.id.edUsername);
         loginEmail = findViewById(R.id.edEmail);
         loginPassword = findViewById(R.id.edPassword);
         loginButton = findViewById(R.id.btnLogin);
@@ -51,57 +59,100 @@ public class LoginActivity extends AppCompatActivity {
         goRegister = findViewById(R.id.tvRegister);
 
         mAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users");
         sharedPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
 
         loadPreferences();
 
         goRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-            finish();
+            if (cbRemember.isChecked()) {
+                inputUsername = loginUsername.getText().toString();
+                inputEmail = loginEmail.getText().toString();
+                inputPassword = loginPassword.getText().toString();
+                savePreferences(inputUsername, inputEmail, inputPassword);
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                clearPreferences();
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+                finish();
+            }
         });
 
         loginButton.setOnClickListener(v -> {
             progressBar.setVisibility(View.VISIBLE);
             String email = loginEmail.getText().toString();
             String password = loginPassword.getText().toString();
+            String inputUsername = loginUsername.getText().toString();
 
             if (TextUtils.isEmpty(email)) {
                 Toast.makeText(this, R.string.toastPlsEmail, Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
-                return;
-            }
-
-            if (TextUtils.isEmpty(password)) {
+            } else if (TextUtils.isEmpty(password)) {
                 Toast.makeText(this, R.string.toastPlsPassword, Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
-                return;
-            }
+            } else if (TextUtils.isEmpty(inputUsername)) {
+                Toast.makeText(this, R.string.toastPlsUsername, Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+            } else {
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                                if (firebaseUser != null) {
+                                    String uid = firebaseUser.getUid();
+                                    databaseReference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            progressBar.setVisibility(View.GONE);
+                                            if (dataSnapshot.exists()) {
+                                                String username = dataSnapshot.child("username").getValue(String.class);
+                                                if (username != null && username.equals(inputUsername)) {
+                                                    if (cbRemember.isChecked()) {
+                                                        savePreferences(inputUsername, email, password);
+                                                    } else {
+                                                        clearPreferences();
+                                                    }
+                                                    Toast.makeText(LoginActivity.this, R.string.toastOkLogin,
+                                                            Toast.LENGTH_SHORT).show();
+                                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                } else {
+                                                    // Signing out so that it doesn't go to MainActivity when switching to RegisterActivity
+                                                    mAuth.signOut();
+                                                    Toast.makeText(LoginActivity.this, R.string.toastKoLoginUsername,
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+                                            } else {
+                                                Toast.makeText(LoginActivity.this, R.string.toastKoLoginDatabase,
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        progressBar.setVisibility(View.GONE);
-                        if (task.isSuccessful()) {
-                            if (cbRemember.isChecked()) {
-                                savePreferences(email, password);
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(LoginActivity.this, R.string.toastKoLoginDatabase,
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
                             } else {
-                                clearPreferences();
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(LoginActivity.this, R.string.toastKoLoginEmailPassword,
+                                        Toast.LENGTH_SHORT).show();
                             }
-                            Toast.makeText(LoginActivity.this, R.string.toastOkLogin,
-                                    Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            Toast.makeText(LoginActivity.this, R.string.toastKoLogin,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                        });
+            }
         });
     }
 
-    private void savePreferences(String email, String password) {
+    private void savePreferences(String username, String email, String password) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("username", username);
         editor.putString("email", email);
         editor.putString("password", password);
         editor.putBoolean("remember", true);
@@ -111,8 +162,10 @@ public class LoginActivity extends AppCompatActivity {
     private void loadPreferences() {
         boolean remember = sharedPreferences.getBoolean("remember", false);
         if (remember) {
+            String username = sharedPreferences.getString("username", "");
             String email = sharedPreferences.getString("email", "");
             String password = sharedPreferences.getString("password", "");
+            loginUsername.setText(username);
             loginEmail.setText(email);
             loginPassword.setText(password);
             cbRemember.setChecked(true);

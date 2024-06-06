@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,9 +28,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         auth = FirebaseAuth.getInstance();
-        logoutButton = findViewById(R.id.btnLogout);
         tvUser = findViewById(R.id.tvUser);
         user = auth.getCurrentUser();
+
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+        setSupportActionBar(toolbar);
 
         if (user == null) {
             Intent intent = new Intent(this, LoginActivity.class);
@@ -38,13 +41,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             tvUser.setText(user.getEmail());
         }
-
-        logoutButton.setOnClickListener(v -> {
-            auth.signOut();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_fragments);
         bottomNav.setSelectedItemId(R.id.bottom_menu_profile);
@@ -82,8 +78,10 @@ public class MainActivity extends AppCompatActivity {
             showAboutDialog();
             return true;
         } else if (id == R.id.top_right_menu_logout) {
-            // Handle Logout option click
-            // Add your logout logic here
+            auth.signOut();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

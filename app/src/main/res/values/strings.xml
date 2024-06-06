@@ -1,13 +1,20 @@
 <resources>
     <string name="app_name">SteamFamilyGroupFinder</string>
 
+    <string name="toastPlsUsername">Please enter username.</string>
     <string name="toastPlsEmail">Please enter email.</string>
     <string name="toastPlsPassword">Please enter password.</string>
-    <string name="toastPlsUsername">Please enter username.</string>
     <string name="toastOkLogin">Login successful.</string>
-    <string name="toastKoLogin">Authentication failed.</string>
-    <string name="toastOkAccount">Account created. You may now log in.</string>
-    <string name="toastKoAccount">Register failed.</string>
+    <string name="toastKoLoginEmailPassword">Authentication failed. Provided email or password is wrong.</string>
+    <string name="toastKoLoginUsername">Login failed. Provided username does not match.</string>
+    <string name="toastKoLoginDatabase">Login failed. Connection to the database failed.</string>
+    <string name="toastOkRegister">Account created.</string>
+    <string name="toastKoRegister">Register failed.</string>
+    <string name="toastKoRegisterDatabase">Register failed. Connection to the database failed.</string>
+    <string name="toastKoRegisterInvalidEmail">Register failed. Email not correctly formatted.</string>
+    <string name="toastKoRegisterEmailInUse">Register failed. Email is already in use.</string>
+    <string name="toastKoRegisterWeakPassword">Register failed. Password must be at least 6 characters long.</string>
+
 
     <string name="etPreparing">Preparing to run…</string>
 
@@ -31,6 +38,8 @@
     <string name="tvGroupStatusOk">You belong to a group!</string>
     <string name="tvGroupStatusKo">You don\'t belong to any group yet! Would you like to create one or join one?</string>
 
+    <string name="inboxTabRequests">Requests</string>
+    <string name="inboxTabChats">Chats</string>
 
     <string name="hello_blank_fragment">xd</string>
 </resources>
