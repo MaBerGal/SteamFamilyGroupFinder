@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -41,7 +42,7 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        welcomeMessage = view.findViewById(R.id.tvWelcome);
+        welcomeMessage = view.findViewById(R.id.tvWelcomeUsername);
         groupStatusMessage = view.findViewById(R.id.tvGroupStatus);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -68,7 +69,8 @@ public class ProfileFragment extends Fragment {
 
                 @Override
                 public void onCancelled(DatabaseError error) {
-                    // Handle possible errors.
+                    Toast.makeText(getContext(), R.string.toastKoDatabase,
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         }

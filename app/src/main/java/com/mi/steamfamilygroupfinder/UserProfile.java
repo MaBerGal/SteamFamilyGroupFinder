@@ -6,6 +6,7 @@ public class UserProfile {
     private String uid;
     private String username;
     private String email;
+    private String profilePicture;
     private List<String> gamesOwned;
     private List<String> gamesInterested;
     private Group group; // Add this line
@@ -45,6 +46,13 @@ public class UserProfile {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     public List<String> getGamesOwned() {

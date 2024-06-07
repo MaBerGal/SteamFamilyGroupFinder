@@ -14,7 +14,7 @@
     <string name="toastKoRegisterInvalidEmail">Register failed. Email not correctly formatted.</string>
     <string name="toastKoRegisterEmailInUse">Register failed. Email is already in use.</string>
     <string name="toastKoRegisterWeakPassword">Register failed. Password must be at least 6 characters long.</string>
-
+    <string name="toastKoDatabase">Connection to the database was interrupted.</string>
 
     <string name="etPreparing">Preparing to run…</string>
 
@@ -41,5 +41,14 @@
     <string name="inboxTabRequests">Requests</string>
     <string name="inboxTabChats">Chats</string>
 
+    <string name="errorDBUserData">Database error. Failed to load user data.</string>
+    <string name="errorLoadImage">Failed to upload profile picture.</string>
+    <string name="saveImageOk">Profile picture updated.</string>
+    <string name="errorSaveImage">Failed to save profile picture to database.</string>
+
     <string name="hello_blank_fragment">xd</string>
+
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+    <string name="menu_home">df????</string>
 </resources>
