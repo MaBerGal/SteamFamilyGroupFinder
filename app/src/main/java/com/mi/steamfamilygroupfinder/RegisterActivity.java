@@ -1,7 +1,5 @@
 package com.mi.steamfamilygroupfinder;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +9,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -76,61 +76,64 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.toastPlsUsername, Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
             } else {
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                progressBar.setVisibility(View.GONE);
+                                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                                if (firebaseUser != null) {
+                                    String uid = firebaseUser.getUid();
+                                    UserProfile user = new UserProfile();
+                                    user.setUid(uid);
+                                    user.setEmail(email);
+                                    user.setUsername(username);
+                                    user.setGamesOwned(new ArrayList<>());
+                                    user.setGamesInterested(new ArrayList<>());
+                                    user.setGid(null); // Initialize gid as null
+                                    user.setIsGroupLeader(false); // Initialize isGroupLeader as false
 
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            progressBar.setVisibility(View.GONE);
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                            String uid = firebaseUser.getUid();
-                            UserProfile user = new UserProfile();
-                            user.setUid(uid);
-                            user.setEmail(email);
-                            user.setUsername(username);
-                            user.setGamesOwned(new ArrayList<>());
-                            user.setGamesInterested(new ArrayList<>());
-
-                            databaseReference.child(uid).setValue(user)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(RegisterActivity.this, R.string.toastOkRegister,
-                                                Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterDatabase,
-                                                Toast.LENGTH_SHORT).show();
-                                    });
-                        } else {
-                            progressBar.setVisibility(View.GONE);
-                            // User creation failed
-                            if (task.getException() != null) {
-                                String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
-                                switch (errorCode) {
-                                    case "ERROR_INVALID_EMAIL":
-                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterInvalidEmail,
-                                                Toast.LENGTH_SHORT).show();
-                                        break;
-                                    case "ERROR_WEAK_PASSWORD":
-                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterWeakPassword,
-                                                Toast.LENGTH_SHORT).show();
-                                        break;
-                                    case "ERROR_EMAIL_ALREADY_IN_USE":
-                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterEmailInUse,
-                                                Toast.LENGTH_SHORT).show();
-                                        break;
-                                    default:
-                                        Toast.makeText(RegisterActivity.this, R.string.toastKoRegister,
-                                                Toast.LENGTH_SHORT).show();
-                                        break;
+                                    databaseReference.child(uid).setValue(user)
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(RegisterActivity.this, R.string.toastOkRegister,
+                                                        Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterDatabase,
+                                                        Toast.LENGTH_SHORT).show();
+                                            });
                                 }
                             } else {
-                                Toast.makeText(RegisterActivity.this, R.string.toastKoRegister,
-                                        Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE);
+                                // User creation failed
+                                if (task.getException() != null) {
+                                    String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
+                                    switch (errorCode) {
+                                        case "ERROR_INVALID_EMAIL":
+                                            Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterInvalidEmail,
+                                                    Toast.LENGTH_SHORT).show();
+                                            break;
+                                        case "ERROR_WEAK_PASSWORD":
+                                            Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterWeakPassword,
+                                                    Toast.LENGTH_SHORT).show();
+                                            break;
+                                        case "ERROR_EMAIL_ALREADY_IN_USE":
+                                            Toast.makeText(RegisterActivity.this, R.string.toastKoRegisterEmailInUse,
+                                                    Toast.LENGTH_SHORT).show();
+                                            break;
+                                        default:
+                                            Toast.makeText(RegisterActivity.this, R.string.toastKoRegister,
+                                                    Toast.LENGTH_SHORT).show();
+                                            break;
+                                    }
+                                } else {
+                                    Toast.makeText(RegisterActivity.this, R.string.toastKoRegister,
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    });
+                        });
             }
         });
     }

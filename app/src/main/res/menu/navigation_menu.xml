@@ -4,8 +4,12 @@
     tools:ignore="HardcodedText">
 
     <item
-        android:id="@+id/nav_account"
-        android:title="My Account" />
+        android:id="@+id/nav_library"
+        android:title="@string/navLibrary" />
+
+    <item
+        android:id="@+id/nav_myaccount"
+        android:title="@string/navMyAccount" />
 
     <item
         android:id="@+id/nav_settings"

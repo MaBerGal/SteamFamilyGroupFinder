@@ -10,11 +10,14 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -60,14 +63,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         drawerLayout = findViewById(R.id.my_drawer_layout);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navOpen, R.string.navClose);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
-        imageViewProfile = headerView.findViewById(R.id.imageViewProfile);
+        imageViewProfile = headerView.findViewById(R.id.ivProfilePicture);
         TextView tvHeaderUsername = headerView.findViewById(R.id.tvHeaderUsername);
         TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
 
@@ -105,10 +108,13 @@ public class MainActivity extends AppCompatActivity {
 
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
-            if (id == R.id.nav_account) {
+            if (id == R.id.nav_library) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.bottomFragmentContainer, new LibraryFragment())
+                        .addToBackStack(null)
+                        .commit();
+            } else if (id == R.id.nav_myaccount) {
                 // Handle the account action
-            } else if (id == R.id.nav_settings) {
-                // Handle the settings action
             } else if (id == R.id.nav_logout) {
                 auth.signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -188,7 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 if (base64String != null && !base64String.isEmpty()) {
                     byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
                     Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                    imageViewProfile.setImageBitmap(bitmap);
+                    Bitmap circularBitmap = getCircleBitmap(bitmap);
+                    imageViewProfile.setImageBitmap(circularBitmap);
                 }
             }
 
@@ -197,6 +204,26 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, R.string.errorLoadImage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private Bitmap getCircleBitmap(Bitmap bitmap) {
+        int size = Math.min(bitmap.getWidth(), bitmap.getHeight());
+        Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final float radius = size / 2f;
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(radius, radius, radius, paint);
+
+        paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, (size - bitmap.getWidth()) / 2f, (size - bitmap.getHeight()) / 2f, paint);
+
+        return output;
     }
 
     @Override

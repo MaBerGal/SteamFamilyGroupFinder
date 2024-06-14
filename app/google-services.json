@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "6839057618",
+    "firebase_url": "https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "steamfamilygroupfinder",
     "storage_bucket": "steamfamilygroupfinder.appspot.com"
   },

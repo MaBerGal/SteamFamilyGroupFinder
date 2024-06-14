@@ -7,19 +7,13 @@ public class UserProfile {
     private String username;
     private String email;
     private String profilePicture;
-    private List<String> gamesOwned;
-    private List<String> gamesInterested;
-    private Group group; // Add this line
+    private List<Integer> gamesOwned;
+    private List<Integer> gamesInterested;
+    private String gid; // Reference the group ID
+    private boolean isGroupLeader;
+    private long lastActive; // New attribute for the last active timestamp
 
     public UserProfile() {
-    }
-
-    public UserProfile(String uid, String username, String email, List<String> gamesOwned, List<String> gamesInterested) {
-        this.uid = uid;
-        this.username = username;
-        this.email = email;
-        this.gamesOwned = gamesOwned;
-        this.gamesInterested = gamesInterested;
     }
 
     // Getter and setter methods
@@ -47,6 +41,7 @@ public class UserProfile {
     public void setEmail(String email) {
         this.email = email;
     }
+
     public String getProfilePicture() {
         return profilePicture;
     }
@@ -55,31 +50,47 @@ public class UserProfile {
         this.profilePicture = profilePicture;
     }
 
-    public List<String> getGamesOwned() {
+    public List<Integer> getGamesOwned() {
         return gamesOwned;
     }
 
-    public void setGamesOwned(List<String> gamesOwned) {
+    public void setGamesOwned(List<Integer> gamesOwned) {
         this.gamesOwned = gamesOwned;
     }
 
-    public List<String> getGamesInterested() {
+    public List<Integer> getGamesInterested() {
         return gamesInterested;
     }
 
-    public void setGamesInterested(List<String> gamesInterested) {
+    public void setGamesInterested(List<Integer> gamesInterested) {
         this.gamesInterested = gamesInterested;
     }
 
-    public Group getGroup() {
-        return group;
+    public String getGid() {
+        return gid;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setGid(String gid) {
+        this.gid = gid;
+    }
+
+    public boolean isGroupLeader() {
+        return isGroupLeader;
+    }
+
+    public void setIsGroupLeader(boolean groupLeader) {
+        isGroupLeader = groupLeader;
     }
 
     public boolean isInGroup() {
-        return this.group != null;
+        return this.gid != null;
+    }
+
+    public long getLastActive() {
+        return lastActive;
+    }
+
+    public void setLastActive(long lastActive) {
+        this.lastActive = lastActive;
     }
 }

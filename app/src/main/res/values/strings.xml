@@ -36,7 +36,8 @@
 
     <string name="tvWelcome">Welcome %1$s!</string>
     <string name="tvGroupStatusOk">You belong to a group!</string>
-    <string name="tvGroupStatusKo">You don\'t belong to any group yet! Would you like to create one or join one?</string>
+    <string name="tvGroupStatusKo">You don\'t belong to any group yet!
+        Would you like to create one or join one?</string>
 
     <string name="inboxTabRequests">Requests</string>
     <string name="inboxTabChats">Chats</string>
@@ -46,9 +47,23 @@
     <string name="saveImageOk">Profile picture updated.</string>
     <string name="errorSaveImage">Failed to save profile picture to database.</string>
 
+    <string name="placeholderProfilePictureHeaderText">Profile Picture</string>
+    <string name="placeholderUsernameHeaderText">Username</string>
+    <string name="placeholderEmailHeaderText">user@email.com</string>
+
     <string name="hello_blank_fragment">xd</string>
 
-    <string name="nav_open">Open</string>
-    <string name="nav_close">Close</string>
-    <string name="menu_home">df????</string>
+    <string name="navOpen">Open</string>
+    <string name="navClose">Close</string>
+    <string name="navMyAccount">My Account</string>
+    <string name="navLibrary">Library</string>
+
+    <string name="addGame">Add Game</string>
+    <string name="deleteGame">Delete Game</string>
+    <string name="itemImage">Item Image</string>
+    <string name="goBack">Go Back</string>
+
+    <string name="searchGame">Search name…</string>
+
+    <string name ="fabCreateGroup">Create Group</string>
 </resources>

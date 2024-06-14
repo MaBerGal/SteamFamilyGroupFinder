@@ -1,64 +1,103 @@
 package com.mi.steamfamilygroupfinder;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link GroupsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class GroupsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private FloatingActionButton fabCreateGroup;
+    private RecyclerView recyclerViewGroups;
+    private GroupsAdapter groupsAdapter;
+    private List<Group> groupList = new ArrayList<>();
+    private DatabaseReference databaseReference;
+    private String userId;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public GroupsFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GroupsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static GroupsFragment newInstance(String param1, String param2) {
-        GroupsFragment fragment = new GroupsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_groups, container, false);
+
+        fabCreateGroup = view.findViewById(R.id.fabCreateGroup);
+        recyclerViewGroups = view.findViewById(R.id.recyclerViewGroups);
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        databaseReference = FirebaseDatabase.getInstance().getReference("groups");
+
+        recyclerViewGroups.setLayoutManager(new LinearLayoutManager(getContext()));
+        groupsAdapter = new GroupsAdapter(getContext(), groupList, userId);
+        recyclerViewGroups.setAdapter(groupsAdapter);
+
+        fetchGroups();
+
+        fabCreateGroup.setOnClickListener(v -> {
+            GroupCreationDialogFragment dialogFragment = GroupCreationDialogFragment.newInstance(this);
+            dialogFragment.show(getChildFragmentManager(), "GroupCreationDialogFragment");
+        });
+
+        return view;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_groups, container, false);
+    void fetchGroups() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                groupList.clear();
+                boolean userInGroup = false;
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Group group = dataSnapshot.getValue(Group.class);
+                    if (group != null) {
+                        groupList.add(group);
+                        // Check if the user is already in any group
+                        if (group.getMembers().contains(userId)) {
+                            userInGroup = true;
+                        }
+                    }
+                }
+
+                // Sort the groupList to show the logged-in user's group first
+                groupList.sort((group1, group2) -> {
+                    // Check if group1 is led by the current user
+                    if (group1.getGroupLeader().equals(userId)) {
+                        return -1; // group1 should come before group2
+                    } else if (group2.getGroupLeader().equals(userId)) {
+                        return 1; // group2 should come before group1
+                    } else {
+                        return 0; // maintain the current order
+                    }
+                });
+
+                groupsAdapter.notifyDataSetChanged();
+
+                // Disable FAB if the user is already in a group
+                if (userInGroup) {
+                    fabCreateGroup.setEnabled(false);
+                    fabCreateGroup.setVisibility(View.GONE); // Optionally hide the FAB
+                } else {
+                    fabCreateGroup.setEnabled(true);
+                    fabCreateGroup.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load groups.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

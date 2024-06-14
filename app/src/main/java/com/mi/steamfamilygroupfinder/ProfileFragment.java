@@ -1,9 +1,17 @@
 package com.mi.steamfamilygroupfinder;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +29,7 @@ public class ProfileFragment extends Fragment {
 
     private TextView welcomeMessage;
     private TextView groupStatusMessage;
+    private ImageView profileImageView;
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference;
 
@@ -44,6 +53,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         welcomeMessage = view.findViewById(R.id.tvWelcomeUsername);
         groupStatusMessage = view.findViewById(R.id.tvGroupStatus);
+        profileImageView = view.findViewById(R.id.ivProfilePicture);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -53,15 +63,19 @@ public class ProfileFragment extends Fragment {
             databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        UserProfile userProfile = snapshot.getValue(UserProfile.class);
-                        if (userProfile != null) {
-                            String welcomeText = getString(R.string.tvWelcome, userProfile.getUsername());
-                            welcomeMessage.setText(welcomeText);
-                            if (userProfile.getGroup() != null) {
-                                groupStatusMessage.setText(R.string.tvGroupStatusOk);
-                            } else {
-                                groupStatusMessage.setText(R.string.tvGroupStatusKo);
+                    if (isAdded() && getContext() != null) { // Check if fragment is added and has valid context
+                        if (snapshot.exists()) {
+                            UserProfile userProfile = snapshot.getValue(UserProfile.class);
+                            if (userProfile != null) {
+                                String welcomeText = getString(R.string.tvWelcome, userProfile.getUsername());
+                                welcomeMessage.setText(welcomeText);
+                                if (userProfile.getGid() != null) {
+                                    groupStatusMessage.setText(R.string.tvGroupStatusOk);
+                                } else {
+                                    groupStatusMessage.setText(R.string.tvGroupStatusKo);
+                                }
+                                // Load the profile picture
+                                loadProfilePicture();
                             }
                         }
                     }
@@ -69,12 +83,62 @@ public class ProfileFragment extends Fragment {
 
                 @Override
                 public void onCancelled(DatabaseError error) {
-                    Toast.makeText(getContext(), R.string.toastKoDatabase,
-                            Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) { // Check if context is valid before showing toast
+                        Toast.makeText(getContext(), R.string.toastKoDatabase, Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
 
         return view;
     }
+
+    private void loadProfilePicture() {
+        if (isAdded() && getContext() != null) { // Check if fragment is added and has valid context
+            String userId = mAuth.getCurrentUser().getUid();
+            databaseReference.child("profilePicture").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (isAdded() && getContext() != null) { // Check if fragment is added and has valid context
+                        String base64String = dataSnapshot.getValue(String.class);
+                        if (base64String != null && !base64String.isEmpty()) {
+                            byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            Bitmap circularBitmap = getCircleBitmap(bitmap);
+                            profileImageView.setImageBitmap(circularBitmap);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    if (getContext() != null) { // Check if context is valid before showing toast
+                        Toast.makeText(getContext(), R.string.errorLoadImage, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
+
+    private Bitmap getCircleBitmap(Bitmap bitmap) {
+        int size = Math.min(bitmap.getWidth(), bitmap.getHeight());
+        Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final float radius = size / 2f;
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(radius, radius, radius, paint);
+
+        paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, (size - bitmap.getWidth()) / 2f, (size - bitmap.getHeight()) / 2f, paint);
+
+        return output;
+    }
+
 }
+

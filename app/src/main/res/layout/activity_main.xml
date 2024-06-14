@@ -33,11 +33,12 @@
         android:id="@+id/bottomFragmentContainer"
         android:name="com.mi.steamfamilygroupfinder.ProfileFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_fragments"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.518"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/topAppBar" />
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
