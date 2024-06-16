@@ -130,15 +130,15 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.bottom_menu_profile) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.bottomFragmentContainer, new ProfileFragment()).commit();
-                overridePendingTransition(0, 0);
+                overridePendingTransition(3, 3);
                 return true;
             } else if (item.getItemId() == R.id.bottom_menu_groups) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.bottomFragmentContainer, new GroupsFragment()).commit();
-                overridePendingTransition(0, 0);
+                overridePendingTransition(3, 3);
                 return true;
             } else if (item.getItemId() == R.id.bottom_menu_inbox) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.bottomFragmentContainer, new InboxFragment()).commit();
-                overridePendingTransition(0, 0);
+                overridePendingTransition(3, 3);
                 return true;
             } else {
                 return false;

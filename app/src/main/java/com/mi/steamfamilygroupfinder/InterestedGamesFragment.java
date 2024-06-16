@@ -36,6 +36,7 @@ public class InterestedGamesFragment extends Fragment {
     private GamesAdapter adapter;
     private List<Game> gamesList;
     private List<Game> filteredGamesList;
+    private List<Integer> gamesOwnedSids; // List to store games owned by the user
     private DatabaseReference databaseReference;
     private FloatingActionButton fabDeleteGame;
     private FloatingActionButton fabAddGame;
@@ -68,6 +69,26 @@ public class InterestedGamesFragment extends Fragment {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
                 .getReference("users").child(userId).child("gamesInterested");
+
+
+        DatabaseReference gamesOwnedRef = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
+                .getReference("users").child(userId).child("gamesOwned");
+        gamesOwnedRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    gamesOwnedSids = new ArrayList<>();
+                    for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
+                        gamesOwnedSids.add(gameSnapshot.getValue(Integer.class));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load owned games.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         loadGames();
 
@@ -184,9 +205,6 @@ public class InterestedGamesFragment extends Fragment {
                                             gamesList.add(game);
                                         }
                                     }
-                                } else {
-                                    // No games interested
-                                    Toast.makeText(getContext(), "You have no games you are interested in.", Toast.LENGTH_SHORT).show();
                                 }
                                 filteredGamesList.clear();
                                 filteredGamesList.addAll(gamesList);
@@ -245,6 +263,11 @@ public class InterestedGamesFragment extends Fragment {
 
 
     public void addGames(List<Integer> selectedGameSids) {
+        if (gamesOwnedSids != null) {
+            // Filter out games that are already owned
+            selectedGameSids.removeIf(gamesOwnedSids::contains);
+        }
+
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -266,7 +289,6 @@ public class InterestedGamesFragment extends Fragment {
                         .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add games.", Toast.LENGTH_SHORT).show());
             }
 
-            // Add onCancelled method
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(getContext(), "Failed to load current games.", Toast.LENGTH_SHORT).show();

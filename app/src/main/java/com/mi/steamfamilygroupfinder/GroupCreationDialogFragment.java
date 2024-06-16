@@ -140,16 +140,25 @@ public class GroupCreationDialogFragment extends DialogFragment implements Users
         Group newGroup = new Group();
         newGroup.setGid(newGroupId);
 
-        // Set group name
         if (TextUtils.isEmpty(groupName)) {
-            String username = allUsers.stream()
-                    .filter(user -> user.getUid().equals(currentUserId))
-                    .findFirst()
-                    .map(UserProfile::getUsername)
-                    .orElse("Unnamed");
-            groupName = username + "'s Group";
+            // Retrieve the current user's username directly from Firebase
+            usersReference.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    UserProfile userProfile = snapshot.getValue(UserProfile.class);
+                    String username = userProfile != null ? userProfile.getUsername() : "Unnamed Group";
+                    newGroup.setGroupName(username);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Failed to retrieve current user's username: " + error.getMessage());
+                    newGroup.setGroupName("Unnamed Group");
+                }
+            });
+        } else {
+            newGroup.setGroupName("Unnamed Group");
         }
-        newGroup.setGroupName(groupName);
 
         newGroup.setGroupLeader(currentUserId);
         List<String> memberIds = new ArrayList<>();

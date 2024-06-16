@@ -5,11 +5,25 @@
     android:orientation="vertical"
     android:layout_marginEnd="8dp">
 
-    <ImageView
-        android:id="@+id/imageViewProfile"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_profile_placeholder" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageViewProfile"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_profile_placeholder" />
+
+        <ImageView
+            android:id="@+id/imageViewStar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_star"
+            android:visibility="gone" />
+    </RelativeLayout>
 
 </LinearLayout>

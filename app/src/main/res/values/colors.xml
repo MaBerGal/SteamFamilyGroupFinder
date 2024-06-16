@@ -12,4 +12,9 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
+
+    <color name="colorLoggedUserCardview">#D1F6A5</color>
+
+    <color name="colorSentMessage">#A861FF</color>
+    <color name="colorReceivedMessage">#EBE2F8</color>
 </resources>

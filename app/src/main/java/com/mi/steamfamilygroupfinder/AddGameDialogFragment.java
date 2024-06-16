@@ -29,6 +29,8 @@ public class AddGameDialogFragment extends DialogFragment {
     private GameSelectionAdapter adapter;
     private List<Game> gamesList;
     private List<Integer> selectedGames;
+    private List<Integer> gamesOwnedSids; // List to store games owned by the user
+    private List<Integer> interestedGamesSids; // List to store games user is interested in
 
     private DatabaseReference databaseReference;
 
@@ -52,7 +54,8 @@ public class AddGameDialogFragment extends DialogFragment {
         adapter = new GameSelectionAdapter(gamesList);
         recyclerView.setAdapter(adapter);
 
-        loadGamesToAdd();
+        // Retrieve user's gamesOwned and interestedGames
+        retrieveUserGames();
 
         Button buttonConfirm = view.findViewById(R.id.buttonConfirm);
         buttonConfirm.setOnClickListener(v -> {
@@ -61,19 +64,23 @@ public class AddGameDialogFragment extends DialogFragment {
                     selectedGames.add(game.getSid());
                 }
             }
+
+            // Determine where the fragment originated from
             if (getTargetFragment() instanceof OwnedGamesFragment) {
+                // Add selected games to OwnedGamesFragment
                 ((OwnedGamesFragment) getTargetFragment()).addGames(selectedGames);
-            }
-            if (getTargetFragment() instanceof InterestedGamesFragment) {
+            } else if (getTargetFragment() instanceof InterestedGamesFragment) {
+                // Add selected games to InterestedGamesFragment
                 ((InterestedGamesFragment) getTargetFragment()).addGames(selectedGames);
             }
+
             dismiss();
         });
 
         return view;
     }
 
-    private void loadGamesToAdd() {
+    private void retrieveUserGames() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference usersReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
                 .getReference("users").child(userId);
@@ -84,7 +91,9 @@ public class AddGameDialogFragment extends DialogFragment {
                 if (snapshot.exists()) {
                     UserProfile userProfile = snapshot.getValue(UserProfile.class);
                     if (userProfile != null) {
-                        List<Integer> gamesOwnedSids = userProfile.getGamesOwned(); // Get the list of games owned by the user
+                        gamesOwnedSids = userProfile.getGamesOwned(); // Get the list of games owned by the user
+                        interestedGamesSids = userProfile.getGamesInterested(); // Get the list of games user is interested in
+
                         DatabaseReference gamesReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
                                 .getReference("games");
 
@@ -94,9 +103,30 @@ public class AddGameDialogFragment extends DialogFragment {
                                 gamesList.clear();
                                 for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
                                     Game game = gameSnapshot.getValue(Game.class);
-                                    if (game != null && (gamesOwnedSids == null || !gamesOwnedSids.contains(game.getSid()))) {
-                                        // Add the game to the list only if it's not owned by the user
-                                        gamesList.add(game);
+                                    if (game != null) {
+                                        boolean canSelect = true;
+
+                                        // Check if coming from InterestedGamesFragment and game is already owned
+                                        if (getTargetFragment() instanceof InterestedGamesFragment) {
+                                            if (gamesOwnedSids != null && gamesOwnedSids.contains(game.getSid())) {
+                                                canSelect = false;
+                                            }
+                                            // Check if game is in interestedGames, don't add to list
+                                            if (interestedGamesSids != null && interestedGamesSids.contains(game.getSid())) {
+                                                canSelect = false;
+                                            }
+                                        }
+
+                                        // Always allow selection if coming from OwnedGamesFragment
+                                        // This ensures games from InterestedGamesFragment can be added
+                                        else if (getTargetFragment() instanceof OwnedGamesFragment) {
+                                            // Check if game is in interestedGames, but skip the check
+                                            // to allow selection from InterestedGamesFragment
+                                        }
+
+                                        if (canSelect) {
+                                            gamesList.add(game);
+                                        }
                                     }
                                 }
                                 adapter.notifyDataSetChanged();
@@ -122,8 +152,5 @@ public class AddGameDialogFragment extends DialogFragment {
 
         usersReference.addListenerForSingleValueEvent(valueEventListener);
     }
-
-
-
-
 }
+

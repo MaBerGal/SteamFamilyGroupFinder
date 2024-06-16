@@ -14,7 +14,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.List;
 
 public class GroupMembersAdapter extends RecyclerView.Adapter<GroupMembersAdapter.MemberViewHolder> {
@@ -48,14 +47,17 @@ public class GroupMembersAdapter extends RecyclerView.Adapter<GroupMembersAdapte
     public class MemberViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView imageViewProfile;
+        private ImageView imageViewStar;
 
         public MemberViewHolder(@NonNull View itemView) {
             super(itemView);
             imageViewProfile = itemView.findViewById(R.id.imageViewProfile);
+            imageViewStar = itemView.findViewById(R.id.imageViewStar);
         }
 
         public void bind(String memberId) {
             loadProfilePicture(memberId, imageViewProfile);
+            checkIfLeader(memberId, imageViewStar);
         }
 
         private void loadProfilePicture(String userId, ImageView imageView) {
@@ -82,6 +84,29 @@ public class GroupMembersAdapter extends RecyclerView.Adapter<GroupMembersAdapte
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                }
+            });
+        }
+
+        private void checkIfLeader(String userId, ImageView imageViewCrown) {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users")
+                    .child(userId)
+                    .child("isGroupLeader");
+
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Boolean isLeader = dataSnapshot.getValue(Boolean.class);
+                    if (isLeader != null && isLeader) {
+                        imageViewCrown.setVisibility(View.VISIBLE);
+                    } else {
+                        imageViewCrown.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    imageViewCrown.setVisibility(View.GONE);
                 }
             });
         }

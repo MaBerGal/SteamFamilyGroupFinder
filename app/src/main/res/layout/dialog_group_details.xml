@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewGroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewGroupMembers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/buttonViewGroupLibrary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View group library"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/buttonJoinRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request to join"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/buttonLeaveGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leave group"
+        android:layout_marginBottom="12dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewGroupMembersModal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -12,6 +12,7 @@ public class UserProfile {
     private String gid; // Reference the group ID
     private boolean isGroupLeader;
     private long lastActive; // New attribute for the last active timestamp
+    private List<String> chatIdentifiers; // List to store chat identifiers
 
     public UserProfile() {
     }
@@ -92,5 +93,13 @@ public class UserProfile {
 
     public void setLastActive(long lastActive) {
         this.lastActive = lastActive;
+    }
+
+    public List<String> getChatIdentifiers() {
+        return chatIdentifiers;
+    }
+
+    public void setChatIdentifiers(List<String> chatIdentifiers) {
+        this.chatIdentifiers = chatIdentifiers;
     }
 }

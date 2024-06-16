@@ -43,6 +43,10 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.Reques
         holder.bind(request);
     }
 
+    public Request getRequestAtPosition(int position) {
+        return requests.get(position);
+    }
+
     @Override
     public int getItemCount() {
         return requests.size();
