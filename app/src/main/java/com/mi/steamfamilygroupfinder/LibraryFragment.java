@@ -34,10 +34,10 @@ public class LibraryFragment extends Fragment {
                 (tab, position) -> {
                     switch (position) {
                         case 0:
-                            tab.setText("Owned Games");
+                            tab.setText(R.string.tabOwnedGames);
                             break;
                         case 1:
-                            tab.setText("Interested Games");
+                            tab.setText(R.string.tabInterestedGames);
                             break;
                     }
                 }).attach();

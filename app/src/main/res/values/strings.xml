@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SteamFamilyGroupFinder</string>
+    <string name="app_name">Steam Group Finder</string>
 
     <string name="toastPlsUsername">Please enter username.</string>
     <string name="toastPlsEmail">Please enter email.</string>
@@ -36,8 +36,7 @@
 
     <string name="tvWelcome">Welcome %1$s!</string>
     <string name="tvGroupStatusOk">You belong to a group!</string>
-    <string name="tvGroupStatusKo">You don\'t belong to any group yet!
-        Would you like to create one or join one?</string>
+    <string name="tvGroupStatusKo">You don\'t belong to any group yet!</string>
 
     <string name="inboxTabRequests">Requests</string>
     <string name="inboxTabChats">Chats</string>
@@ -46,12 +45,49 @@
     <string name="errorLoadImage">Failed to upload profile picture.</string>
     <string name="saveImageOk">Profile picture updated.</string>
     <string name="errorSaveImage">Failed to save profile picture to database.</string>
+    <string name="errorLoadUserProfile">Failed to load user profile.</string>
+    <string name="errorSendMessage">Failed to send message.</string>
+    <string name="errorLoadChats">Failed to load chats.</string>
+    <string name="errorCreateGroup">Failed to create group.</string>
+    <string name="createGroupOk">Group created successfully.</string>
+    <string name="errorLoadGames">Failed to load games.</string>
+    <string name="errorLoadGroupDetails">Failed to load group details.</string>
+    <string name="errorLeaveGroup">Failed to leave the group.</string>
+    <string name="leaveGroupOk">You have left the group.</string>
+    <string name="errorDeleteGroup">Failed to delete the group.</string>
+    <string name="deleteGroupOk">Group was deleted successfully.</string>
+    <string name="errorSendRequest">Failed to send request.</string>
+    <string name="sendRequestOk">Request sent!</string>
+    <string name="errorLoadGroups">Failed to load groups.</string>
+    <string name="errorLoadOwnedGames">Failed to load owned games.</string>
+    <string name="errorLoadInterestedGames">Failed to load games interested in.</string>
+    <string name="errorRemoveGame">Failed to remove game.</string>
+    <string name="removeGameOk">Game removed successfully.</string>
+    <string name="addGameOk">Game added successfully.</string>
+    <string name="addGamesOk">Games added successfully.</string>
+    <string name="errorAddGames">Failed to add games.</string>
+    <string name="errorLoadUsername">Failed to load username.</string>
+    <string name="warningNewUsername">Please enter a username.</string>
+    <string name="errorUpdateUsername">Failed to update username.</string>
+    <string name="updateUsernameOk">Username updated successfully.</string>
+    <string name="errorRemoveChats">Failed to remove chats.</string>
+    <string name="errorRemoveChatOtherUser">Failed to remove chat on other users\' end.</string>
+    <string name="errorRemoveRequests">Failed to remove requests.</string>
+    <string name="errorRemoveUsersGroup">Failed to remove users from group.</string>
+    <string name="errorRemoveGroup">Failed to remove group.</string>
+    <string name="errorUpdateUsersDeletion">"Failed to update other members after group deletion."</string>
+    <string name="errorRemoveUserData">Failed to remove user data.</string>
+    <string name="userDeleteAccountOk">Account deleted successfully.</string>
+    <string name="errorUserDeleteAccount">Failed to delete user from the database.</string>
+    <string name="errorLoadRequests">Failed to load requests.</string>
+    <string name="errorAddUserToGroup">Failed to add user to group.</string>
+    <string name="addUserToGroupOk">Added to group successfully!</string>
+    <string name="errorDeleteRequest">Failed to delete request.</string>
+    <string name="errorLoadUsers">Failed to load users.</string>
 
     <string name="placeholderProfilePictureHeaderText">Profile Picture</string>
     <string name="placeholderUsernameHeaderText">Username</string>
     <string name="placeholderEmailHeaderText">user@email.com</string>
-
-    <string name="hello_blank_fragment">xd</string>
 
     <string name="navOpen">Open</string>
     <string name="navClose">Close</string>
@@ -66,4 +102,68 @@
     <string name="searchGame">Search name…</string>
 
     <string name ="fabCreateGroup">Create Group</string>
+
+    <string name="titleDialogAbout">About</string>
+    <string name="authorDialogAbout">Author: </string>
+    <string name="versionDialogAbout">Version: </string>
+
+    <string name="titleDialogLeaveGroup">Leave Group</string>
+    <string name="confirmationDialogLeaderLeaveGroup">"You are the leader of this group. Leaving the group will delete it. Do you want to proceed?"</string>
+    <string name="positiveDialogOption">Yes</string>
+    <string name="negativeDialogOption">No</string>
+
+    <string name="titleDialogDeleteAccount">Delete Account</string>
+    <string name="confirmationDialogDeleteAccount">Are you sure you want to delete your account? This action cannot be undone.</string>
+    <string name="deleteDialogOption">Delete</string>
+    <string name="cancelDialogOption">Cancel</string>
+
+    <string name="titleDialogCreateGroup">Create Group</string>
+    <string name="createDialogOption">Create</string>
+
+    <string name="tabOwnedGames">Owned Games</string>
+    <string name="tabInterestedGames">Interested Games</string>
+
+    <string name="requestInvitedTo">Invited to group: </string>
+    <string name="requestInvitedToError">Invited to group: [Error fetching group name]</string>
+    <string name="requestToJoin"> requests to join your group</string>
+    <string name="requestToJoinError">[Error fetching username] requests to join your group</string>
+
+    <string name="btnSendJoinRequest">Send join request</string>
+    <string name="btnRequestSent">Request sent</string>
+
+    <string name="unnamedGroup">Unnamed Group</string>
+    <string name="unknownUsername">Unknown Username</string>
+
+    <string name="tvGamesOwned">Games you own: %1$d</string>
+    <string name="tvGamesInterested">Games you are interested in: %1$d</string>
+    <string name="tvGroupName">Name of your group: </string>
+    <string name="view_in_steam_store">View in Steam store</string>
+    <string name="languages">Languages:</string>
+    <string name="developers">Developers:</string>
+    <string name="genres">Genres:</string>
+    <string name="description">Description:</string>
+    <string name="title">Title:</string>
+    <string name="group_name_optional">Group Name (Optional)</string>
+    <string name="view_group_library">View group library</string>
+    <string name="send_invites">Send invites</string>
+    <string name="request_to_join">Request to join</string>
+    <string name="leave_group">Leave group</string>
+    <string name="invite_users">Invite Users</string>
+    <string name="type_a_message">Type a message</string>
+    <string name="send">Send</string>
+    <string name="back">◄ Back</string>
+    <string name="searchGames">Search games…</string>
+    <string name="searchGroups">Search groups…</string>
+    <string name="enter_new_username">Enter new username</string>
+    <string name="change_username">Change Username</string>
+    <string name="deactivate_account">DELETE ACCOUNT</string>
+    <string name="username">Username</string>
+    <string name="last_message_preview">Last message preview</string>
+    <string name="view_library">View Library</string>
+    <string name="message">Message</string>
+    <string name="accept_request">Accept Request</string>
+    <string name="reject_request">Reject Request</string>
+    <string name="confirm">Confirm</string>
+
+
 </resources>

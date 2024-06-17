@@ -1,5 +1,6 @@
 package com.mi.steamfamilygroupfinder;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +14,14 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.adapters.RequestsAdapter;
+import com.mi.steamfamilygroupfinder.models.Request;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,8 @@ public class RequestsTabFragment extends Fragment {
     private RequestsAdapter requestsAdapter;
     private List<Request> requestsList = new ArrayList<>();
     private DatabaseReference requestsReference;
+    private MediaPlayer mediaPlayer;
+
 
     @Nullable
     @Override
@@ -37,6 +42,8 @@ public class RequestsTabFragment extends Fragment {
 
         recyclerViewRequests = view.findViewById(R.id.recyclerViewRequests);
         recyclerViewRequests.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        mediaPlayer = MediaPlayer.create(getContext(), R.raw.yay);
 
         requestsAdapter = new RequestsAdapter(requireContext(), requestsList, new RequestsAdapter.RequestActionListener() {
             @Override
@@ -78,26 +85,28 @@ public class RequestsTabFragment extends Fragment {
     }
 
     private void loadRequests() {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        requestsReference = FirebaseDatabase.getInstance().getReference("requests");
-        requestsReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                requestsList.clear();
-                for (DataSnapshot requestSnapshot : snapshot.getChildren()) {
-                    Request request = requestSnapshot.getValue(Request.class);
-                    if (request != null && currentUserId.equals(request.getReceiverId())) {
-                        requestsList.add(request);
+        String currentUserId = FirebaseRefs.getCurrentUser().getUid();
+        if (currentUserId != null) {
+            requestsReference = FirebaseRefs.getRequestsReference();
+            requestsReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    requestsList.clear();
+                    for (DataSnapshot requestSnapshot : snapshot.getChildren()) {
+                        Request request = requestSnapshot.getValue(Request.class);
+                        if (request != null && currentUserId.equals(request.getReceiverId())) {
+                            requestsList.add(request);
+                        }
                     }
+                    requestsAdapter.notifyDataSetChanged();
                 }
-                requestsAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(requireContext(), "Failed to load requests.", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(requireContext(), R.string.errorLoadRequests, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void handleAccept(Request request) {
@@ -107,16 +116,64 @@ public class RequestsTabFragment extends Fragment {
             addUserToGroup(request, request.getRequesterId());
         }
 
-        removeRequest(request);
+        removeRequestsForUser(request.getRequesterId());
+        removeRequestsForUser(request.getReceiverId());
+
+        playYaySound();
     }
+
+    private void playYaySound() {
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
+
+
+    private void removeRequestsForUser(String userId) {
+        DatabaseReference requestsRef = FirebaseRefs.getRequestsReference();
+        requestsRef.orderByChild("requesterId").equalTo(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot requestSnapshot : dataSnapshot.getChildren()) {
+                    Request request = requestSnapshot.getValue(Request.class);
+                    if (request != null) {
+                        requestsRef.child(request.getRequestId()).removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(requireContext(), "Failed to remove requests for user.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        requestsRef.orderByChild("receiverId").equalTo(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot requestSnapshot : dataSnapshot.getChildren()) {
+                    Request request = requestSnapshot.getValue(Request.class);
+                    if (request != null) {
+                        requestsRef.child(request.getRequestId()).removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(requireContext(), "Failed to remove requests for user.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private void handleReject(Request request) {
         removeRequest(request);
     }
 
     private void addUserToGroup(Request request, String userId) {
-        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups").child(request.getGroupId()).child("members");
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("gid");
+        DatabaseReference groupRef = FirebaseRefs.getGroupsReference().child(request.getGroupId()).child("members");
+        DatabaseReference userRef = FirebaseRefs.getUsersReference().child(userId).child("gid");
 
         groupRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -131,13 +188,14 @@ public class RequestsTabFragment extends Fragment {
                         if (task.isSuccessful()) {
                             userRef.setValue(request.getGroupId()).addOnCompleteListener(task1 -> {
                                 if (task1.isSuccessful()) {
-                                    Toast.makeText(requireContext(), "User added to group successfully", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), R.string.addUserToGroupOk, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(requireContext(), "Failed to update user's group ID.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), R.string.errorAddUserToGroup, Toast.LENGTH_SHORT).show();
+                                    // Toast.makeText(requireContext(), "Failed to update user's group ID.", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
-                            Toast.makeText(requireContext(), "Failed to add user to group.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), R.string.errorAddUserToGroup, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -145,7 +203,7 @@ public class RequestsTabFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(requireContext(), "Failed to add user to group.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.errorAddUserToGroup, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -154,8 +212,18 @@ public class RequestsTabFragment extends Fragment {
         DatabaseReference requestRef = FirebaseDatabase.getInstance().getReference("requests").child(request.getRequestId());
         requestRef.removeValue().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
-                Toast.makeText(requireContext(), "Failed to remove request.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to delete request.", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
 }

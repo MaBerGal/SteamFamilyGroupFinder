@@ -2,10 +2,6 @@ package com.mi.steamfamilygroupfinder;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -15,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,14 +21,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.models.Group;
+import com.mi.steamfamilygroupfinder.models.User;
+import com.mi.steamfamilygroupfinder.utility.Utils;
 
 public class ProfileFragment extends Fragment {
 
     private TextView welcomeMessage;
     private TextView groupStatusMessage;
+    private TextView tvGamesOwned;
+    private TextView tvGamesInterested;
+    private TextView tvGroupName;
     private ImageView profileImageView;
     private FirebaseAuth mAuth;
-    private DatabaseReference databaseReference;
+    private DatabaseReference userRef;
+    private DatabaseReference groupsRef;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -45,6 +49,7 @@ public class ProfileFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        groupsRef = FirebaseDatabase.getInstance().getReference().child("groups");
     }
 
     @Override
@@ -53,37 +58,54 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         welcomeMessage = view.findViewById(R.id.tvWelcomeUsername);
         groupStatusMessage = view.findViewById(R.id.tvGroupStatus);
+        tvGamesOwned = view.findViewById(R.id.tvGamesOwned);
+        tvGamesInterested = view.findViewById(R.id.tvGamesInterested);
+        tvGroupName = view.findViewById(R.id.tvGroupName);
         profileImageView = view.findViewById(R.id.ivProfilePicture);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String uid = currentUser.getUid();
-            databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users").child(uid);
+            userRef = FirebaseDatabase.getInstance().getReference().child("users").child(uid);
 
-            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    if (isAdded() && getContext() != null) { // Check if fragment is added and has valid context
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (isAdded() && getContext() != null) {
                         if (snapshot.exists()) {
-                            UserProfile userProfile = snapshot.getValue(UserProfile.class);
-                            if (userProfile != null) {
-                                String welcomeText = getString(R.string.tvWelcome, userProfile.getUsername());
+                            User user = snapshot.getValue(User.class);
+                            if (user != null) {
+                                String welcomeText = getString(R.string.tvWelcome, user.getUsername());
                                 welcomeMessage.setText(welcomeText);
-                                if (userProfile.getGid() != null) {
-                                    groupStatusMessage.setText(R.string.tvGroupStatusOk);
+
+                                if (user.getGid() != null) {
+                                    groupStatusMessage.setText(getString(R.string.tvGroupStatusOk));
+                                    loadGroupName(user.getGid());
                                 } else {
-                                    groupStatusMessage.setText(R.string.tvGroupStatusKo);
+                                    groupStatusMessage.setText(getString(R.string.tvGroupStatusKo));
                                 }
+
+                                // Load games owned and interested counts
+                                if (snapshot.child("gamesOwned").exists()) {
+                                    long gamesOwnedCount = snapshot.child("gamesOwned").getChildrenCount();
+                                    tvGamesOwned.setText(getString(R.string.tvGamesOwned, gamesOwnedCount));
+                                }
+
+                                if (snapshot.child("gamesInterested").exists()) {
+                                    long gamesInterestedCount = snapshot.child("gamesInterested").getChildrenCount();
+                                    tvGamesInterested.setText(getString(R.string.tvGamesInterested, gamesInterestedCount));
+                                }
+
                                 // Load the profile picture
-                                loadProfilePicture();
+                                loadProfilePicture(user.getProfilePicture());
                             }
                         }
                     }
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {
-                    if (getContext() != null) { // Check if context is valid before showing toast
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (getContext() != null) {
                         Toast.makeText(getContext(), R.string.toastKoDatabase, Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -93,52 +115,39 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-    private void loadProfilePicture() {
-        if (isAdded() && getContext() != null) { // Check if fragment is added and has valid context
-            String userId = mAuth.getCurrentUser().getUid();
-            databaseReference.child("profilePicture").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (isAdded() && getContext() != null) { // Check if fragment is added and has valid context
-                        String base64String = dataSnapshot.getValue(String.class);
-                        if (base64String != null && !base64String.isEmpty()) {
-                            byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                            Bitmap circularBitmap = getCircleBitmap(bitmap);
-                            profileImageView.setImageBitmap(circularBitmap);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    if (getContext() != null) { // Check if context is valid before showing toast
-                        Toast.makeText(getContext(), R.string.errorLoadImage, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+    private void loadProfilePicture(String base64String) {
+        if (isAdded() && getContext() != null) {
+            if (base64String != null && !base64String.isEmpty()) {
+                byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                Bitmap circularBitmap = Utils.getCircleBitmap(bitmap);
+                profileImageView.setImageBitmap(circularBitmap);
+            }
         }
     }
 
-    private Bitmap getCircleBitmap(Bitmap bitmap) {
-        int size = Math.min(bitmap.getWidth(), bitmap.getHeight());
-        Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
+    private void loadGroupName(String groupId) {
+        groupsRef.child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Group group = snapshot.getValue(Group.class);
+                    if (group != null) {
+                        String groupName = group.getGroupName();
+                        // Set the group name text
+                        String text = getString(R.string.tvGroupName) + "\n" + groupName;
+                        tvGroupName.setText(text);
+                    }
+                }
+            }
 
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final float radius = size / 2f;
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawCircle(radius, radius, radius, paint);
-
-        paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, (size - bitmap.getWidth()) / 2f, (size - bitmap.getHeight()) / 2f, paint);
-
-        return output;
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), R.string.toastKoDatabase, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 }
-

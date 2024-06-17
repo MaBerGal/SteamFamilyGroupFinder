@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageViewGameDetail"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/textViewTitleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp"
+            android:textColor="@color/purple_700"/>
+
+        <TextView
+            android:id="@+id/textViewGameTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textViewDescriptionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:paddingBottom="4dp"
+            android:textColor="@color/purple_700"/>
+
+        <TextView
+            android:id="@+id/textViewGameDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textViewGenresLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/genres"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:paddingBottom="4dp"
+            android:textColor="@color/purple_700"/>
+
+        <TextView
+            android:id="@+id/textViewGameGenres"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textViewDevelopersLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/developers"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:paddingBottom="4dp"
+            android:textColor="@color/purple_700"/>
+
+        <TextView
+            android:id="@+id/textViewGameDevelopers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textViewLanguagesLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/languages"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:paddingBottom="4dp"
+            android:textColor="@color/purple_700"/>
+
+        <TextView
+            android:id="@+id/textViewGameLanguages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp" />
+
+        <Button
+            android:id="@+id/buttonViewInSteam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/view_in_steam_store"
+            android:backgroundTint="@color/darkSteam"/>
+    </LinearLayout>
+</ScrollView>

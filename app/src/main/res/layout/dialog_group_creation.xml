@@ -10,8 +10,9 @@
         android:id="@+id/editTextGroupName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Group Name (Optional)"
-        android:inputType="text" />
+        android:hint="@string/group_name_optional"
+        android:inputType="text"
+        android:maxLength="13" />
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchViewUsers"

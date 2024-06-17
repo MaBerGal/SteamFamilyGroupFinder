@@ -24,6 +24,13 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- Splash Screen Theme -->
+    <style name="Theme.MyApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+    </style>
+
     <style name="Theme.SteamFamilyGroupFinder.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.SteamFamilyGroupFinder.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

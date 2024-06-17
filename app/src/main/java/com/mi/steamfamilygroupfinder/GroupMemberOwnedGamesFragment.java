@@ -1,11 +1,12 @@
 package com.mi.steamfamilygroupfinder;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log; // Import the Log class
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,13 +14,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.adapters.GamesAdapter;
+import com.mi.steamfamilygroupfinder.models.Game;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,8 +31,6 @@ import java.util.List;
 import java.util.Set;
 
 public class GroupMemberOwnedGamesFragment extends Fragment {
-
-    private static final String TAG = "GroupMemberOwnedGames"; // Define a TAG for logging
     private RecyclerView recyclerView;
     private GamesAdapter adapter;
     private List<Game> gamesList;
@@ -39,8 +41,10 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
     private String[] memberIds;
     private String memberId;
     private String currentSearchQuery = "";
+    private Button buttonBack;
     private int totalGamesToFetch = 0; // Counter for total games to fetch
     private int gamesFetched = 0; // Counter for games fetched
+
 
     public GroupMemberOwnedGamesFragment() {
         // Required empty public constructor
@@ -68,13 +72,19 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_group_member_owned_games, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewGames);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
+        } else {
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }
         gamesList = new ArrayList<>();
         gameSids = new HashSet<>(); // Use a set to ensure unique sids
         filteredGamesList = new ArrayList<>();
         adapter = new GamesAdapter(gamesList);
         recyclerView.setAdapter(adapter);
         searchView = view.findViewById(R.id.searchView);
+        buttonBack = view.findViewById(R.id.buttonBack);
 
         // Retrieve memberIds or memberId from arguments
         Bundle args = getArguments();
@@ -85,14 +95,20 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
             }
         }
 
-        gamesReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("games");
+        gamesReference = FirebaseRefs.getGamesReference();
 
         if (memberIds != null && memberIds.length > 0) {
             loadGamesFromMultipleMembers();
         } else if (memberId != null) {
             loadGamesFromSingleMember();
         }
+
+        buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -112,16 +128,15 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
     }
 
     private void loadGamesFromMultipleMembers() {
-        Log.d(TAG, "loadGamesFromMultipleMembers called");
+        //Log.d("GroupMemberOwnedGames", "loadGamesFromMultipleMembers called");
         gamesList.clear();
         gameSids.clear();
         totalGamesToFetch = 0;
         gamesFetched = 0;
 
         for (String memberId : memberIds) {
-            Log.d(TAG, "Processing member ID: " + memberId);
-            DatabaseReference userGamesRef = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                    .getReference("users").child(memberId).child("gamesOwned");
+            //Log.d("GroupMemberOwnedGames", "Processing member ID: " + memberId);
+            DatabaseReference userGamesRef = FirebaseRefs.getUsersReference().child(memberId).child("gamesOwned");
 
             userGamesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -130,7 +145,7 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
                         for (DataSnapshot sidSnapshot : snapshot.getChildren()) {
                             Integer sid = sidSnapshot.getValue(Integer.class);
                             if (sid != null && gameSids.add(sid)) { // Add sid to set and check if it was added
-                                Log.d(TAG, "Adding game sid: " + sid + " for member ID: " + memberId);
+                                //Log.d("GroupMemberOwnedGames", "Adding game sid: " + sid + " for member ID: " + memberId);
                                 totalGamesToFetch++;
                                 fetchGameDetails(sid);
                             }
@@ -147,14 +162,13 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
     }
 
     private void loadGamesFromSingleMember() {
-        Log.d(TAG, "loadGamesFromSingleMember called for member ID: " + memberId);
+        //Log.d("GroupMemberOwnedGames", "loadGamesFromSingleMember called for member ID: " + memberId);
         gamesList.clear();
         gameSids.clear();
         totalGamesToFetch = 0;
         gamesFetched = 0;
 
-        DatabaseReference userGamesRef = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("users").child(memberId).child("gamesOwned");
+        DatabaseReference userGamesRef = FirebaseRefs.getUsersReference().child(memberId).child("gamesOwned");
 
         userGamesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -163,7 +177,7 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
                     for (DataSnapshot sidSnapshot : snapshot.getChildren()) {
                         Integer sid = sidSnapshot.getValue(Integer.class);
                         if (sid != null && gameSids.add(sid)) { // Add sid to set and check if it was added
-                            Log.d(TAG, "Adding game sid: " + sid + " for member ID: " + memberId);
+                            //Log.d("GroupMemberOwnedGames", "Adding game sid: " + sid + " for member ID: " + memberId);
                             totalGamesToFetch++;
                             fetchGameDetails(sid);
                         }
@@ -173,14 +187,13 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load game sids.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.errorLoadGames, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void fetchGameDetails(Integer sid) {
-        Log.d(TAG, "Fetching details for game sid: " + sid);
-
+        // Log.d("GroupMemberOwnedGames", "Fetching details for game sid: " + sid);
         gamesReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -188,14 +201,14 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
                 for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
                     Game game = gameSnapshot.getValue(Game.class);
                     if (game.getSid() == sid) {
-                        Log.d(TAG, "Game details fetched: " + game.getName() + " || SID: " + game.getSid());
+                        //Log.d("GroupMemberOwnedGames", "Game details fetched: " + game.getName() + " || SID: " + game.getSid());
                         gamesList.add(game);
                         break;
                     }
                 }
 
                 gamesFetched++;
-                Log.d(TAG, "Games fetched: " + gamesFetched + " out of " + totalGamesToFetch);
+                //Log.d("GroupMemberOwnedGames", "Games fetched: " + gamesFetched + " out of " + totalGamesToFetch);
                 if (gamesFetched == totalGamesToFetch) {
                     updateAdapterWithFetchedGames();
                 }
@@ -204,9 +217,9 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 // Handle database error
-                Toast.makeText(getContext(), "Failed to fetch games.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.errorLoadGames, Toast.LENGTH_SHORT).show();
                 gamesFetched++;
-                Log.d(TAG, "Failed to fetch games. Games fetched: " + gamesFetched + " out of " + totalGamesToFetch);
+                //Log.d("GroupMemberOwnedGames", "Failed to fetch games. Games fetched: " + gamesFetched + " out of " + totalGamesToFetch);
                 if (gamesFetched == totalGamesToFetch) {
                     updateAdapterWithFetchedGames();
                 }
@@ -215,13 +228,13 @@ public class GroupMemberOwnedGamesFragment extends Fragment {
     }
 
     private void updateAdapterWithFetchedGames() {
-        Log.d(TAG, "Updating adapter with fetched games");
+        //Log.d("GroupMemberOwnedGames", "Updating adapter with fetched games");
         filter(currentSearchQuery);  // Reapply current search query after loading games
         adapter.notifyDataSetChanged();
     }
 
     private void filter(String query) {
-        Log.d(TAG, "Filtering games with query: " + query);
+        //Log.d("GroupMemberOwnedGames", "Filtering games with query: " + query);
         filteredGamesList.clear();
         if (TextUtils.isEmpty(query)) {
             filteredGamesList.addAll(gamesList);

@@ -1,29 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddGameDialogFragment">
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".dialogs.AddGameDialogFragment">
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:layout_marginTop="12dp"
+        android:iconifiedByDefault="false"
+        android:queryHint="Search games..."
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewGamesList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/buttonConfirm"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="250dp"
+        android:layout_height="541dp"
+        android:layout_marginBottom="12dp" />
 
     <Button
         android:id="@+id/buttonConfirm"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Confirm"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_height="63dp"
+        android:layout_gravity="center_horizontal"
+        android:backgroundTint="@color/greenPfp"
+        android:text="@string/confirm" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

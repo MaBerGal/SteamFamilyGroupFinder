@@ -14,8 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/checkBoxSelected"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:text="Game Name" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <CheckBox
         android:id="@+id/checkBoxSelected"

@@ -9,14 +9,10 @@
 
     <item
         android:id="@+id/nav_myaccount"
-        android:title="@string/navMyAccount" />
-
-    <item
-        android:id="@+id/nav_settings"
-        android:title="Settings" />
+        android:title="@string/navMyAccount"/>
 
     <item
         android:id="@+id/nav_logout"
-        android:title="Logout" />
+        android:title="@string/menuLogout" />
 
 </menu>

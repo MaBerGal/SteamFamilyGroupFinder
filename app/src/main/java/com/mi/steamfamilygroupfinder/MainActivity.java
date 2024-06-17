@@ -10,10 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -34,21 +31,23 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.dialogs.AboutDialogFragment;
+import com.mi.steamfamilygroupfinder.models.User;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
+import com.mi.steamfamilygroupfinder.utility.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final long MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
     private FirebaseAuth auth;
     private FirebaseUser user;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private ImageView imageViewProfile;
-    private DatabaseReference databaseReference;
+    private DatabaseReference currentUserReference;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users").child(user.getUid());
+        currentUserReference = FirebaseRefs.getUsersReference().child(user.getUid());
 
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
@@ -74,18 +73,21 @@ public class MainActivity extends AppCompatActivity {
         TextView tvHeaderUsername = headerView.findViewById(R.id.tvHeaderUsername);
         TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
 
+        // Initialize MediaPlayer
+        mediaPlayer = MediaPlayer.create(this, R.raw.switch_sound);
+
         if (user == null) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         } else {
-            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            currentUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        UserProfile userProfile = snapshot.getValue(UserProfile.class);
-                        if (userProfile != null) {
-                            tvHeaderUsername.setText(userProfile.getUsername());
+                        User user = snapshot.getValue(User.class);
+                        if (user != null) {
+                            tvHeaderUsername.setText(user.getUsername());
                         }
                     }
                 }
@@ -114,7 +116,10 @@ public class MainActivity extends AppCompatActivity {
                         .addToBackStack(null)
                         .commit();
             } else if (id == R.id.nav_myaccount) {
-                // Handle the account action
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.bottomFragmentContainer, new MyAccountFragment())
+                        .addToBackStack(null)
+                        .commit();
             } else if (id == R.id.nav_logout) {
                 auth.signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -126,25 +131,41 @@ public class MainActivity extends AppCompatActivity {
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_fragments);
-        bottomNav.setSelectedItemId(R.id.bottom_menu_profile);
         bottomNav.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.bottom_menu_profile) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.bottomFragmentContainer, new ProfileFragment()).commit();
-                overridePendingTransition(3, 3);
+                playSwitchSound();
+                getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                        .replace(R.id.bottomFragmentContainer, new ProfileFragment())
+                        .commit();
                 return true;
             } else if (item.getItemId() == R.id.bottom_menu_groups) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.bottomFragmentContainer, new GroupsFragment()).commit();
-                overridePendingTransition(3, 3);
+                playSwitchSound();
+                getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                        .replace(R.id.bottomFragmentContainer, new GroupsFragment())
+                        .commit();
                 return true;
             } else if (item.getItemId() == R.id.bottom_menu_inbox) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.bottomFragmentContainer, new InboxFragment()).commit();
-                overridePendingTransition(3, 3);
+                playSwitchSound();
+                getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                        .replace(R.id.bottomFragmentContainer, new InboxFragment())
+                        .commit();
                 return true;
             } else {
                 return false;
             }
         });
+
     }
+
+    private void playSwitchSound() {
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
+
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -174,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveProfilePicture(String base64String) {
         String userId = user.getUid();
-        databaseReference.child("profilePicture").setValue(base64String)
+        currentUserReference.child("profilePicture").setValue(base64String)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         loadProfilePicture();
@@ -187,14 +208,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadProfilePicture() {
         String userId = user.getUid();
-        databaseReference.child("profilePicture").addListenerForSingleValueEvent(new ValueEventListener() {
+        currentUserReference.child("profilePicture").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String base64String = dataSnapshot.getValue(String.class);
                 if (base64String != null && !base64String.isEmpty()) {
                     byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
                     Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                    Bitmap circularBitmap = getCircleBitmap(bitmap);
+                    Bitmap circularBitmap = Utils.getCircleBitmap(bitmap);
                     imageViewProfile.setImageBitmap(circularBitmap);
                 }
             }
@@ -204,26 +225,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, R.string.errorLoadImage, Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private Bitmap getCircleBitmap(Bitmap bitmap) {
-        int size = Math.min(bitmap.getWidth(), bitmap.getHeight());
-        Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final float radius = size / 2f;
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawCircle(radius, radius, radius, paint);
-
-        paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, (size - bitmap.getWidth()) / 2f, (size - bitmap.getHeight()) / 2f, paint);
-
-        return output;
     }
 
     @Override
@@ -256,5 +257,15 @@ public class MainActivity extends AppCompatActivity {
         AboutDialogFragment dialogFragment = new AboutDialogFragment();
         dialogFragment.show(getSupportFragmentManager(), String.valueOf(R.string.menuAbout));
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
 
 }

@@ -1,9 +1,9 @@
 package com.mi.steamfamilygroupfinder;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +22,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.adapters.ChatAdapter;
+import com.mi.steamfamilygroupfinder.models.ChatMessage;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,8 @@ public class ChatFragment extends Fragment {
     private FirebaseUser currentUser;
     private String memberId;
     private String chatId;
+    private MediaPlayer mediaPlayer;
+
 
     public ChatFragment() {
         // Required empty public constructor
@@ -65,6 +69,8 @@ public class ChatFragment extends Fragment {
         }
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         chatMessages = new ArrayList<>();
+
+        mediaPlayer = MediaPlayer.create(requireContext(), R.raw.message);
     }
 
     @Nullable
@@ -86,17 +92,17 @@ public class ChatFragment extends Fragment {
         }
 
         // Initialize chatRef and load messages
-        chatRef = FirebaseDatabase.getInstance().getReference("chats")
+        chatRef = FirebaseRefs.getChatsReference()
                 .child(chatId)
                 .child("messages");
 
         // Reference to the user's chatIdentifiers node
-        userChatIdentifiersRef1 = FirebaseDatabase.getInstance().getReference("users")
+        userChatIdentifiersRef1 = FirebaseRefs.getUsersReference()
                 .child(currentUser.getUid())
                 .child("chatIdentifiers");
 
         // Reference to the other user's chatIdentifiers node
-        userChatIdentifiersRef2 = FirebaseDatabase.getInstance().getReference("users")
+        userChatIdentifiersRef2 = FirebaseRefs.getUsersReference()
                 .child(memberId)
                 .child("chatIdentifiers");
 
@@ -133,16 +139,23 @@ public class ChatFragment extends Fragment {
                 }
                 chatAdapter.notifyDataSetChanged();
                 recyclerViewChat.scrollToPosition(chatMessages.size() - 1);
-                Log.d("ChatFragment", "Loaded messages: " + chatMessages.size());
+                playMessageSound();
+                //Log.d("ChatFragment", "Loaded messages: " + chatMessages.size());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load messages: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("ChatFragment", "Failed to load messages", error.toException());
+                //Log.e("ChatFragment", "Failed to load messages", error.toException());
             }
         });
     }
+
+    private void playMessageSound() {
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
+
 
     private void sendMessage() {
         String messageText = editTextMessage.getText().toString().trim();
@@ -162,7 +175,7 @@ public class ChatFragment extends Fragment {
                 // Add chatId to user's chatIdentifiers list
                 addChatIdentifierToUser();
             } else {
-                Toast.makeText(getContext(), "Failed to send message.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.errorSendMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -191,19 +204,19 @@ public class ChatFragment extends Fragment {
                     userChatIdentifiersRef1.setValue(chatIdentifiers)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    Log.d("ChatFragment", "ChatId added to user's chatIdentifiers (Ref1)");
+                                    //Log.d("ChatFragment", "ChatId added to user's chatIdentifiers (Ref1)");
                                 } else {
-                                    Log.e("ChatFragment", "Failed to add chatId to user's chatIdentifiers (Ref1)", task.getException());
+                                    //Log.e("ChatFragment", "Failed to add chatId to user's chatIdentifiers (Ref1)", task.getException());
                                 }
                             });
                 } else {
-                    Log.d("ChatFragment", "ChatId already exists in user's chatIdentifiers (Ref1)");
+                   //Log.d("ChatFragment", "ChatId already exists in user's chatIdentifiers (Ref1)");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("ChatFragment", "Database error: " + error.getMessage(), error.toException());
+                //Log.e("ChatFragment", "Database error: " + error.getMessage(), error.toException());
             }
         });
 
@@ -220,21 +233,31 @@ public class ChatFragment extends Fragment {
                     userChatIdentifiersRef2.setValue(chatIdentifiers)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    Log.d("ChatFragment", "ChatId added to user's chatIdentifiers (Ref2)");
+                                    //Log.d("ChatFragment", "ChatId added to user's chatIdentifiers (Ref2)");
                                 } else {
-                                    Log.e("ChatFragment", "Failed to add chatId to user's chatIdentifiers (Ref2)", task.getException());
+                                    //Log.e("ChatFragment", "Failed to add chatId to user's chatIdentifiers (Ref2)", task.getException());
                                 }
                             });
                 } else {
-                    Log.d("ChatFragment", "ChatId already exists in user's chatIdentifiers (Ref2)");
+                    //Log.d("ChatFragment", "ChatId already exists in user's chatIdentifiers (Ref2)");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("ChatFragment", "Database error: " + error.getMessage(), error.toException());
+                //Log.e("ChatFragment", "Database error: " + error.getMessage(), error.toException());
             }
         });
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
 
 }

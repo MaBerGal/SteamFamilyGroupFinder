@@ -2,6 +2,7 @@ package com.mi.steamfamilygroupfinder;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,14 +18,20 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.adapters.GamesAdapter;
+import com.mi.steamfamilygroupfinder.dialogs.AddGameDialogFragment;
+import com.mi.steamfamilygroupfinder.models.Game;
+import com.mi.steamfamilygroupfinder.models.User;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +56,12 @@ public class OwnedGamesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_owned_games, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewGames);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
+        } else {
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }
         gamesList = new ArrayList<>();
         filteredGamesList = new ArrayList<>();
         adapter = new GamesAdapter(gamesList);
@@ -66,8 +78,7 @@ public class OwnedGamesFragment extends Fragment {
         fabDeleteGame = view.findViewById(R.id.fabDeleteGame);
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("users").child(userId).child("gamesOwned");
+        databaseReference = FirebaseRefs.getUsersReference().child(userId).child("gamesOwned");
 
         loadGames();
 
@@ -160,18 +171,16 @@ public class OwnedGamesFragment extends Fragment {
 
     private void loadGames() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference usersReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("users").child(userId);
+        DatabaseReference usersReference = FirebaseRefs.getUsersReference().child(userId);
 
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    UserProfile userProfile = snapshot.getValue(UserProfile.class);
-                    if (userProfile != null) {
-                        List<Integer> gamesOwnedSids = userProfile.getGamesOwned();
-                        DatabaseReference gamesReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                                .getReference("games");
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        List<Integer> gamesOwnedSids = user.getGamesOwned();
+                        DatabaseReference gamesReference = FirebaseRefs.getGamesReference();
 
                         gamesReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -186,7 +195,7 @@ public class OwnedGamesFragment extends Fragment {
                                     }
                                 } else {
                                     // No games owned
-                                    Toast.makeText(getContext(), "You have no games owned.", Toast.LENGTH_SHORT).show();
+                                    // Toast.makeText(getContext(), "You have no games owned.", Toast.LENGTH_SHORT).show();
                                 }
                                 filteredGamesList.clear();
                                 filteredGamesList.addAll(gamesList);
@@ -195,19 +204,19 @@ public class OwnedGamesFragment extends Fragment {
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(getContext(), "Failed to load games.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), R.string.errorLoadOwnedGames, Toast.LENGTH_SHORT).show();
                             }
                         });
                     } else {
                         // User profile is null
-                        Toast.makeText(getContext(), "Failed to load user profile.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.errorLoadUserProfile, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load user profile.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.errorLoadUserProfile, Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -216,8 +225,7 @@ public class OwnedGamesFragment extends Fragment {
 
     private void deleteGame(int gameSid) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userGamesRef = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("users").child(userId).child("gamesOwned");
+        DatabaseReference userGamesRef = FirebaseRefs.getUsersReference().child(userId).child("gamesOwned");
 
         userGamesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -227,8 +235,8 @@ public class OwnedGamesFragment extends Fragment {
                         int sid = gameSnapshot.getValue(Integer.class);
                         if (sid == gameSid) {
                             gameSnapshot.getRef().removeValue()
-                                    .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Game removed successfully.", Toast.LENGTH_SHORT).show())
-                                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to remove game.", Toast.LENGTH_SHORT).show());
+                                    .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), R.string.removeGameOk, Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e -> Toast.makeText(getContext(), R.string.errorRemoveGame, Toast.LENGTH_SHORT).show());
                             loadGames();
                             return; // Exit the loop once the game is found and removed
                         }
@@ -238,16 +246,15 @@ public class OwnedGamesFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Failed to remove game.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.errorRemoveGame, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
 
     public void addGames(List<Integer> selectedGameSids) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userGamesInterestedRef = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("users").child(userId).child("gamesInterested");
+        String userId = FirebaseRefs.getCurrentUser().getUid();
+        DatabaseReference userGamesInterestedRef = FirebaseRefs.getUsersReference().child(userId).child("gamesInterested");
 
         userGamesInterestedRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -276,24 +283,26 @@ public class OwnedGamesFragment extends Fragment {
                         Set<Integer> uniqueGames = new HashSet<>(currentGames); // To avoid duplicates
                         databaseReference.setValue(new ArrayList<>(uniqueGames))
                                 .addOnSuccessListener(aVoid -> {
-                                    if (selectedGameSids.size() > 0) {
-                                        Toast.makeText(getContext(), "Games added successfully.", Toast.LENGTH_SHORT).show();
+                                    if (selectedGameSids.size() == 1) {
+                                        Toast.makeText(getContext(), R.string.addGameOk, Toast.LENGTH_SHORT).show();
+                                    } else if (selectedGameSids.size() > 1) {
+                                        Toast.makeText(getContext(), R.string.addGamesOk, Toast.LENGTH_SHORT).show();
                                     }
                                     loadGames();  // Reload games after addition
                                 })
-                                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add games.", Toast.LENGTH_SHORT).show());
+                                .addOnFailureListener(e -> Toast.makeText(getContext(), R.string.errorAddGames, Toast.LENGTH_SHORT).show());
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Failed to load current games.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.errorLoadOwnedGames, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Failed to remove game from interested list.", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getContext(), "Failed to remove game from interested list.", Toast.LENGTH_SHORT).show();
             }
         });
     }

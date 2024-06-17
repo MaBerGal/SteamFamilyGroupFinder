@@ -23,7 +23,6 @@
             android:id="@+id/textViewUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Username"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -31,7 +30,6 @@
             android:id="@+id/textViewLastMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last message preview"
             android:textSize="14sp"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -42,7 +40,6 @@
         android:id="@+id/textViewTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Timestamp"
         android:textSize="12sp"
         android:textColor="@android:color/darker_gray" />
 

@@ -1,6 +1,7 @@
 package com.mi.steamfamilygroupfinder;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,7 +18,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.mi.steamfamilygroupfinder.models.User;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
 
 import java.util.ArrayList;
 
@@ -27,7 +30,8 @@ public class RegisterActivity extends AppCompatActivity {
     TextView goLogin;
     ProgressBar progressBar;
     FirebaseAuth mAuth;
-    DatabaseReference databaseReference;
+    DatabaseReference usersRef;
+    private VideoView videoView;
 
     @Override
     public void onStart() {
@@ -58,7 +62,15 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         mAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users");
+        usersRef = FirebaseRefs.getUsersReference();
+
+        videoView = findViewById(R.id.videoView);
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.video_background_2);
+        videoView.setVideoURI(videoUri);
+        videoView.setOnPreparedListener(mp -> {
+            mp.setLooping(true);
+            videoView.start();
+        });
 
         registerButton.setOnClickListener(v -> {
             progressBar.setVisibility(View.VISIBLE);
@@ -83,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                 if (firebaseUser != null) {
                                     String uid = firebaseUser.getUid();
-                                    UserProfile user = new UserProfile();
+                                    User user = new User();
                                     user.setUid(uid);
                                     user.setEmail(email);
                                     user.setUsername(username);
@@ -92,7 +104,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     user.setGid(null); // Initialize gid as null
                                     user.setIsGroupLeader(false); // Initialize isGroupLeader as false
 
-                                    databaseReference.child(uid).setValue(user)
+                                    usersRef.child(uid).setValue(user)
                                             .addOnSuccessListener(aVoid -> {
                                                 Toast.makeText(RegisterActivity.this, R.string.toastOkRegister,
                                                         Toast.LENGTH_SHORT).show();

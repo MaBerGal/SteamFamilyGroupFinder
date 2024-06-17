@@ -1,5 +1,6 @@
 package com.mi.steamfamilygroupfinder;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -17,6 +20,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.adapters.GroupsAdapter;
+import com.mi.steamfamilygroupfinder.dialogs.GroupCreationDialogFragment;
+import com.mi.steamfamilygroupfinder.models.Group;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +31,10 @@ public class GroupsFragment extends Fragment {
 
     private FloatingActionButton fabCreateGroup;
     private RecyclerView recyclerViewGroups;
+    private SearchView searchView;
     private GroupsAdapter groupsAdapter;
     private List<Group> groupList = new ArrayList<>();
+    private List<Group> filteredGroupList = new ArrayList<>();
     private DatabaseReference databaseReference;
     private String userId;
 
@@ -36,11 +45,17 @@ public class GroupsFragment extends Fragment {
 
         fabCreateGroup = view.findViewById(R.id.fabCreateGroup);
         recyclerViewGroups = view.findViewById(R.id.recyclerViewGroups);
+        searchView = view.findViewById(R.id.searchView);
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         databaseReference = FirebaseDatabase.getInstance().getReference("groups");
 
-        recyclerViewGroups.setLayoutManager(new LinearLayoutManager(getContext()));
-        groupsAdapter = new GroupsAdapter(getContext(), groupList, userId);
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            recyclerViewGroups.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
+        } else {
+            recyclerViewGroups.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
+        groupsAdapter = new GroupsAdapter(getContext(), filteredGroupList, userId);
         recyclerViewGroups.setAdapter(groupsAdapter);
 
         fetchGroups();
@@ -50,10 +65,24 @@ public class GroupsFragment extends Fragment {
             dialogFragment.show(getChildFragmentManager(), "GroupCreationDialogFragment");
         });
 
+        // Set up SearchView
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterGroups(newText);
+                return true;
+            }
+        });
+
         return view;
     }
 
-    void fetchGroups() {
+    public void fetchGroups() {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -82,6 +111,10 @@ public class GroupsFragment extends Fragment {
                     }
                 });
 
+                // Initially, show all groups
+                filteredGroupList.clear();
+                filteredGroupList.addAll(groupList);
+
                 groupsAdapter.notifyDataSetChanged();
 
                 // Disable FAB if the user is already in a group
@@ -99,5 +132,20 @@ public class GroupsFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to load groups.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void filterGroups(String query) {
+        filteredGroupList.clear();
+        if (query.isEmpty()) {
+            filteredGroupList.addAll(groupList);
+        } else {
+            String queryLowerCase = query.toLowerCase();
+            for (Group group : groupList) {
+                if (group.getGroupName().toLowerCase().contains(queryLowerCase)) {
+                    filteredGroupList.add(group);
+                }
+            }
+        }
+        groupsAdapter.notifyDataSetChanged();
     }
 }

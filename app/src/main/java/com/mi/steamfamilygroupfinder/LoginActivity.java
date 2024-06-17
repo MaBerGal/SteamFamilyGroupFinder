@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,14 +14,15 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mi.steamfamilygroupfinder.utility.FirebaseRefs;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -31,8 +33,9 @@ public class LoginActivity extends AppCompatActivity {
     TextView goRegister;
     ProgressBar progressBar;
     FirebaseAuth mAuth;
-    DatabaseReference databaseReference;
+    DatabaseReference usersReference;
     SharedPreferences sharedPreferences;
+    private VideoView videoView;
 
     @Override
     public void onStart() {
@@ -50,6 +53,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        videoView = findViewById(R.id.videoView);
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.video_background);
+        videoView.setVideoURI(videoUri);
+        videoView.setOnPreparedListener(mp -> {
+            mp.setLooping(true);
+            videoView.start();
+        });
+
         loginUsername = findViewById(R.id.edUsername);
         loginEmail = findViewById(R.id.edEmail);
         loginPassword = findViewById(R.id.edPassword);
@@ -59,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         goRegister = findViewById(R.id.tvRegister);
 
         mAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance("https://steamfamilygroupfinder-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users");
+        usersReference = FirebaseRefs.getUsersReference();
         sharedPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
 
         loadPreferences();
@@ -103,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
                                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                 if (firebaseUser != null) {
                                     String uid = firebaseUser.getUid();
-                                    databaseReference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    usersReference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             progressBar.setVisibility(View.GONE);
