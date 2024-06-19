@@ -128,6 +128,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     }
                                                     Toast.makeText(LoginActivity.this, R.string.toastOkLogin,
                                                             Toast.LENGTH_SHORT).show();
+                                                    FirebaseRefs.initialize();
                                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                                     startActivity(intent);
                                                     finish();

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity">
+    tools:context=".RegisterActivity">
 
     <!-- VideoView as the background -->
     <VideoView
@@ -26,20 +26,21 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="500dp"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:layout_gravity="center">
 
-            <!-- TextView for Login title -->
+            <!-- TextView for Register title -->
             <TextView
-                android:id="@+id/tvTitleLogin"
+                android:id="@+id/tvTitleRegister"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
-                android:text="@string/btnLogin"
-                android:textColor="@android:color/holo_red_dark"
+                android:text="@string/btnRegister"
+                android:textColor="@color/material_dynamic_primary50"
                 android:textSize="48sp" />
 
             <!-- EditText for Email -->
@@ -81,31 +82,22 @@
                 android:textColor="@color/white"
                 android:textColorHint="@color/material_dynamic_neutral80" />
 
-            <!-- CheckBox for Remember Me -->
-            <CheckBox
-                android:id="@+id/cbRemember"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/cbRemember"
-                android:textColor="@color/white" />
-
-            <!-- Button for Login -->
+            <!-- Button for Register -->
             <Button
-                android:id="@+id/btnLogin"
+                android:id="@+id/btnRegister"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:backgroundTint="@android:color/holo_red_dark"
-                android:text="@string/btnLogin" />
+                android:backgroundTint="@color/material_dynamic_primary40"
+                android:text="@string/btnRegister" />
 
-            <!-- TextView for Register -->
+            <!-- TextView for Click to Login -->
             <TextView
                 android:id="@+id/tvRegister"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/tvClickToRegister"
+                android:text="@string/tvClickToLogin"
                 android:textColor="@color/design_default_color_secondary_variant" />
 
             <!-- ProgressBar -->

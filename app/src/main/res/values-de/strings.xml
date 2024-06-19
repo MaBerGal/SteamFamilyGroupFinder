@@ -1,0 +1,167 @@
+<resources>
+    <string name="app_name">Steam Gruppen Finder</string>
+
+    <string name="toastPlsUsername">Bitte Benutzername eingeben.</string>
+    <string name="toastPlsEmail">Bitte E-Mail eingeben.</string>
+    <string name="toastPlsPassword">Bitte Passwort eingeben.</string>
+    <string name="toastOkLogin">Login erfolgreich.</string>
+    <string name="toastKoLoginEmailPassword">Authentifizierung fehlgeschlagen. E-Mail oder Passwort falsch.</string>
+    <string name="toastKoLoginUsername">Login fehlgeschlagen. Benutzername stimmt nicht überein.</string>
+    <string name="toastKoLoginDatabase">Login fehlgeschlagen. Verbindung zur Datenbank fehlgeschlagen.</string>
+    <string name="toastOkRegister">Konto erstellt.</string>
+    <string name="toastKoRegister">Registrierung fehlgeschlagen.</string>
+    <string name="toastKoRegisterDatabase">Registrierung fehlgeschlagen. Verbindung zur Datenbank fehlgeschlagen.</string>
+    <string name="toastKoRegisterInvalidEmail">Registrierung fehlgeschlagen. E-Mail nicht korrekt formatiert.</string>
+    <string name="toastKoRegisterEmailInUse">Registrierung fehlgeschlagen. E-Mail wird bereits verwendet.</string>
+    <string name="toastKoRegisterWeakPassword">Registrierung fehlgeschlagen. Passwort muss mindestens 6 Zeichen lang sein.</string>
+    <string name="toastKoDatabase">Verbindung zur Datenbank unterbrochen.</string>
+
+    <string name="etPreparing">Vorbereitung läuft…</string>
+
+    <string name="etUsername">Benutzername</string>
+    <string name="etEmail">E-Mail</string>
+    <string name="etPassword">Passwort</string>
+    <string name="cbRemember">Login-Informationen merken</string>
+    <string name="btnLogin">LOGIN</string>
+    <string name="btnRegister">REGISTRIEREN</string>
+    <string name="tvClickToLogin">Hier klicken zum Einloggen</string>
+    <string name="tvClickToRegister">Hier klicken zum Registrieren</string>
+
+    <string name="fragmentProfile">Profil</string>
+    <string name="fragmentGroups">Gruppen</string>
+    <string name="fragmentInbox">Posteingang</string>
+
+    <string name="menuAbout">Über</string>
+    <string name="menuLogout">Abmelden</string>
+
+    <string name="tvWelcome">Willkommen %1$s!</string>
+    <string name="tvGroupStatusOk">Du gehörst zu einer Gruppe!</string>
+    <string name="tvGroupStatusKo">Du gehörst noch keiner Gruppe an!</string>
+
+    <string name="inboxTabRequests">Anfragen</string>
+    <string name="inboxTabChats">Chats</string>
+
+    <string name="errorDBUserData">Datenbankfehler. Benutzerdaten konnten nicht geladen werden.</string>
+    <string name="errorLoadImage">Profilbild konnte nicht hochgeladen werden.</string>
+    <string name="saveImageOk">Profilbild aktualisiert.</string>
+    <string name="errorSaveImage">Profilbild konnte nicht in der Datenbank gespeichert werden.</string>
+    <string name="errorLoadUserProfile">Benutzerprofil konnte nicht geladen werden.</string>
+    <string name="errorSendMessage">Nachricht konnte nicht gesendet werden.</string>
+    <string name="errorLoadChats">Chats konnten nicht geladen werden.</string>
+    <string name="errorCreateGroup">Gruppe konnte nicht erstellt werden.</string>
+    <string name="createGroupOk">Gruppe erfolgreich erstellt.</string>
+    <string name="errorLoadGames">Spiele konnten nicht geladen werden.</string>
+    <string name="errorLoadGroupDetails">Gruppendetails konnten nicht geladen werden.</string>
+    <string name="errorLeaveGroup">Gruppe konnte nicht verlassen werden.</string>
+    <string name="leaveGroupOk">Du hast die Gruppe verlassen.</string>
+    <string name="errorDeleteGroup">Gruppe konnte nicht gelöscht werden.</string>
+    <string name="deleteGroupOk">Gruppe erfolgreich gelöscht.</string>
+    <string name="errorSendRequest">Anfrage konnte nicht gesendet werden.</string>
+    <string name="sendRequestOk">Anfrage gesendet!</string>
+    <string name="errorLoadGroups">Gruppen konnten nicht geladen werden.</string>
+    <string name="errorLoadOwnedGames">Besitzte Spiele konnten nicht geladen werden.</string>
+    <string name="errorLoadInterestedGames">Interessierte Spiele konnten nicht geladen werden.</string>
+    <string name="errorRemoveGame">Spiel konnte nicht entfernt werden.</string>
+    <string name="removeGameOk">Spiel erfolgreich entfernt.</string>
+    <string name="addGameOk">Spiel erfolgreich hinzugefügt.</string>
+    <string name="addGamesOk">Spiele erfolgreich hinzugefügt.</string>
+    <string name="errorAddGames">Spiele konnten nicht hinzugefügt werden.</string>
+    <string name="errorLoadUsername">Benutzername konnte nicht geladen werden.</string>
+    <string name="warningNewUsername">Bitte einen Benutzernamen eingeben.</string>
+    <string name="errorUpdateUsername">Benutzername konnte nicht aktualisiert werden.</string>
+    <string name="updateUsernameOk">Benutzername erfolgreich aktualisiert.</string>
+    <string name="errorRemoveChats">Chats konnten nicht entfernt werden.</string>
+    <string name="errorRemoveChatOtherUser">Chat auf der Seite des anderen Benutzers konnte nicht entfernt werden.</string>
+    <string name="errorRemoveRequests">Anfragen konnten nicht entfernt werden.</string>
+    <string name="errorRemoveUsersGroup">Benutzer konnten nicht aus der Gruppe entfernt werden.</string>
+    <string name="errorRemoveGroup">Gruppe konnte nicht entfernt werden.</string>
+    <string name="errorUpdateUsersDeletion">Aktualisierung der anderen Mitglieder nach dem Löschen der Gruppe fehlgeschlagen.</string>
+    <string name="errorRemoveUserData">Benutzerdaten konnten nicht entfernt werden.</string>
+    <string name="userDeleteAccountOk">Konto erfolgreich gelöscht.</string>
+    <string name="errorUserDeleteAccount">Benutzer konnte nicht aus der Datenbank gelöscht werden.</string>
+    <string name="errorLoadRequests">Anfragen konnten nicht geladen werden.</string>
+    <string name="errorAddUserToGroup">Benutzer konnte nicht zur Gruppe hinzugefügt werden.</string>
+    <string name="addUserToGroupOk">Erfolgreich zur Gruppe hinzugefügt!</string>
+    <string name="errorDeleteRequest">Anfrage konnte nicht gelöscht werden.</string>
+    <string name="errorLoadUsers">Benutzer konnten nicht geladen werden.</string>
+
+    <string name="placeholderProfilePictureHeaderText">Profilbild</string>
+    <string name="placeholderUsernameHeaderText">Benutzername</string>
+    <string name="placeholderEmailHeaderText">user@email.com</string>
+
+    <string name="navOpen">Öffnen</string>
+    <string name="navClose">Schließen</string>
+    <string name="navMyAccount">Mein Konto</string>
+    <string name="navLibrary">Bibliothek</string>
+
+    <string name="addGame">Spiel hinzufügen</string>
+    <string name="deleteGame">Spiel löschen</string>
+    <string name="itemImage">Artikelbild</string>
+    <string name="goBack">Zurück</string>
+
+    <string name="searchGame">Name suchen…</string>
+
+    <string name ="fabCreateGroup">Gruppe erstellen</string>
+
+    <string name="titleDialogAbout">Über</string>
+    <string name="authorDialogAbout">Autor: </string>
+    <string name="versionDialogAbout">Version: </string>
+
+    <string name="titleDialogLeaveGroup">Gruppe verlassen</string>
+    <string name="confirmationDialogLeaderLeaveGroup">"Du bist der Leiter dieser Gruppe. Wenn du die Gruppe verlässt, wird sie gelöscht. Möchtest du fortfahren?"</string>
+    <string name="positiveDialogOption">Ja</string>
+    <string name="negativeDialogOption">Nein</string>
+
+    <string name="titleDialogDeleteAccount">Konto löschen</string>
+    <string name="confirmationDialogDeleteAccount">Möchten Sie Ihr Konto wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="deleteDialogOption">Löschen</string>
+    <string name="cancelDialogOption">Abbrechen</string>
+
+    <string name="titleDialogCreateGroup">Gruppe erstellen</string>
+    <string name="createDialogOption">Erstellen</string>
+
+    <string name="tabOwnedGames">Besitzte Spiele</string>
+    <string name="tabInterestedGames">Interessierte Spiele</string>
+
+    <string name="requestInvitedTo">Zur Gruppe eingeladen: </string>
+    <string name="requestInvitedToError">Zur Gruppe eingeladen: [Fehler beim Abrufen des Gruppennamens]</string>
+    <string name="requestToJoin"> möchte deiner Gruppe beitreten</string>
+    <string name="requestToJoinError">[Fehler beim Abrufen des Benutzernamens] möchte deiner Gruppe beitreten</string>
+
+    <string name="btnSendJoinRequest">Beitrittsanfrage senden</string>
+    <string name="btnRequestSent">Anfrage gesendet</string>
+
+    <string name="unnamedGroup">Unbenannte Gruppe</string>
+    <string name="unknownUsername">Unbekannter Benutzername</string>
+
+    <string name="tvGamesOwned">Besitzte Spiele: %1$d</string>
+    <string name="tvGamesInterested">Interessierte Spiele: %1$d</string>
+    <string name="tvGroupName">Name deiner Gruppe: </string>
+    <string name="view_in_steam_store">Im Steam Store ansehen</string>
+    <string name="languages">Sprachen:</string>
+    <string name="developers">Entwickler:</string>
+    <string name="genres">Genres:</string>
+    <string name="description">Beschreibung:</string>
+    <string name="title">Titel:</string>
+    <string name="group_name_optional">Gruppenname (Optional)</string>
+    <string name="view_group_library">Gruppenbibliothek anzeigen</string>
+    <string name="send_invites">Einladungen senden</string>
+    <string name="request_to_join">Beitritt anfragen</string>
+    <string name="leave_group">Gruppe verlassen</string>
+    <string name="invite_users">Benutzer einladen</string>
+    <string name="type_a_message">Nachricht eingeben</string>
+    <string name="send">Senden</string>
+    <string name="back">◄ Zurück</string>
+    <string name="searchGames">Spiele suchen…</string>
+    <string name="searchGroups">Gruppen suchen…</string>
+    <string name="enter_new_username">Neuen Benutzernamen eingeben</string>
+    <string name="change_username">Benutzernamen ändern</string>
+    <string name="deactivate_account">KONTO LÖSCHEN</string>
+    <string name="username">Benutzername</string>
+    <string name="last_message_preview">Letzte Nachricht Vorschau</string>
+    <string name="view_library">Bibliothek anzeigen</string>
+    <string name="message">Nachricht</string>
+    <string name="accept_request">Anfrage annehmen</string>
+    <string name="reject_request">Anfrage ablehnen</string>
+    <string name="confirm">Bestätigen</string>
+</resources>

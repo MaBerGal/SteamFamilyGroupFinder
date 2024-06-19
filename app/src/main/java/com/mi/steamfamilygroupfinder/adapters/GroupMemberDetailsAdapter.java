@@ -156,7 +156,7 @@ public class GroupMemberDetailsAdapter extends RecyclerView.Adapter<GroupMemberD
         private void checkIfLeader(String userId) {
             DatabaseReference databaseReference = FirebaseRefs.getUsersReference()
                     .child(userId)
-                    .child("isGroupLeader");
+                    .child("groupLeader");
 
             databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

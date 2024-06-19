@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -182,7 +183,8 @@ public class GroupCreationDialogFragment extends DialogFragment implements Users
                         if (groupsFragment != null) {
                             groupsFragment.fetchGroups();
                         }
-                        usersReference.child(currentUserId).child("isGroupLeader").setValue(true);
+                        usersReference.child(currentUserId).child("groupLeader").setValue(true);
+                        usersReference.child(currentUserId).child("inGroup").setValue(true);
                         //Log.d("GroupCreationDialog", "Group ID updated for current user.");
                     } else {
                         //Log.e("GroupCreationDialog", "Failed to update Group ID for current user.");
@@ -217,9 +219,9 @@ public class GroupCreationDialogFragment extends DialogFragment implements Users
         requestsReference.setValue(request)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        //Log.d("GroupCreationDialog", "Request sent successfully to user: " + receiverId);
+                        Log.d("GroupCreationDialog", "Request sent successfully to user: " + receiverId);
                     } else {
-                        //Log.e("GroupCreationDialog", "Failed to send request to user: " + receiverId);
+                        Log.e("GroupCreationDialog", "Failed to send request to user: " + receiverId);
                     }
                 });
     }

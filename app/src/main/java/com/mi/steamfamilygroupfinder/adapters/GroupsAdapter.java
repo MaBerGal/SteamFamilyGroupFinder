@@ -322,9 +322,17 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupViewH
                                             userRef.child("inGroup").setValue(false)
                                                     .addOnCompleteListener(task2 -> {
                                                         if (task2.isSuccessful()) {
-                                                            Toast.makeText(context, R.string.deleteGroupOk, Toast.LENGTH_SHORT).show();
-                                                            dialog.dismiss();
-                                                            notifyDataSetChanged();
+                                                            userRef.child("groupLeader").setValue(false)
+                                                                    .addOnCompleteListener(task3 -> {
+                                                                        if (task3.isSuccessful()) {
+                                                                            Toast.makeText(context, R.string.deleteGroupOk, Toast.LENGTH_SHORT).show();
+                                                                            dialog.dismiss();
+                                                                            notifyDataSetChanged();
+                                                                        } else {
+                                                                            Toast.makeText(context, R.string.errorDeleteGroup, Toast.LENGTH_SHORT).show();
+                                                                            //Toast.makeText(context, "Failed to update groupLeader status.", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    });
                                                         } else {
                                                             Toast.makeText(context, R.string.errorDeleteGroup, Toast.LENGTH_SHORT).show();
                                                             //Toast.makeText(context, "Failed to update inGroup status.", Toast.LENGTH_SHORT).show();
@@ -380,10 +388,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupViewH
             GroupMemberLibraryFragment fragment = new GroupMemberLibraryFragment();
             fragment.setArguments(args);
 
-            // Assuming you're using FragmentManager to navigate
             FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.bottomFragmentContainer, fragment)  // Replace bottomFragmentContainer with your actual container id
+                    .replace(R.id.bottomFragmentContainer, fragment)
                     .addToBackStack(null)
                     .commit();
         }
